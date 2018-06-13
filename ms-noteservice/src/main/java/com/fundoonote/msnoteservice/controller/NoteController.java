@@ -15,31 +15,32 @@ import com.fundoonote.msnoteservice.service.INoteService;
 public class NoteController {
 
 	private INoteService iNoteService;
-	
+
 	@Autowired
 	public NoteController(INoteService iNoteService) {
 		this.iNoteService = iNoteService;
 	}
-	
-	
-	
-	@RequestMapping(method = RequestMethod.GET, path = "/notes")
-    public ResponseEntity<Iterable<Note>> getAll() {
-		/*System.out.println("IN Inside Notes**********************************************************");
-		RestTemplate restTemplate = new RestTemplate();
-        User user = restTemplate.getForObject("http://localhost:8081/user/users", User.class);
-        System.out.println("User from Other:"+ user);*/
-        Iterable<Note> allNote = iNoteService.findAll();
 
-        return new ResponseEntity<>(allNote, HttpStatus.OK);
-    }
+	@RequestMapping(method = RequestMethod.GET, path = "/getallnotes")
+	public ResponseEntity<Iterable<Note>> getAll() {
+		/*
+		 * System.out.
+		 * println("IN Inside Notes**********************************************************"
+		 * ); RestTemplate restTemplate = new RestTemplate(); User user =
+		 * restTemplate.getForObject("http://localhost:8081/user/users", User.class);
+		 * System.out.println("User from Other:"+ user);
+		 */
+		Iterable<Note> allNote = iNoteService.findAll();
 
-    @RequestMapping(method = RequestMethod.POST, path = "/register")
-    public ResponseEntity<Note> register(@RequestBody Note note) {
-    	System.out.println("Inside ");
+		return new ResponseEntity<>(allNote, HttpStatus.OK);
+	}
 
-        Note result = iNoteService.createNote(note);
+	@RequestMapping(method = RequestMethod.POST, path = "/createnote")
+	public ResponseEntity<Note> register(@RequestBody Note note) {
+		System.out.println("Inside ");
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
+		Note result = iNoteService.createNote(note);
+
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
 }
