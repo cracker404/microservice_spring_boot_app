@@ -3,11 +3,11 @@ zuul:
   routes:
     user:
       path: /user/**
-      service-id: MS-USERSERVICE
+      service-id: ms-user
       #url:  http://localhost:8008
     notes:
       path: /notes/**
-      service-id: MS-NOTESERVICE
+      service-id: ms-note
   host:
     socket-timeout-millis: 60000
     connection-request-timeout-millis: 60000 
