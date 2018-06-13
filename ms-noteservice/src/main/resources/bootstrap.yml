@@ -1,0 +1,8 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /note
+spring:
+  application:
+    name: ms-note
+  
