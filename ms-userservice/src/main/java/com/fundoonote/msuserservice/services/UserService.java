@@ -11,7 +11,9 @@ import com.fundoonote.msuserservice.repositories.UserRepository;
 
 @Service
 public class UserService {
-
+	
+	@Autowired
+	private TokenUtility tokenUtility;
 	@Autowired
 	UserRepository userRepository;
 
@@ -32,6 +34,6 @@ public class UserService {
 			throw new RuntimeException("Invalid credentials");
 		}
 		
-		return TokenUtility.generate(user.getId());
+		return tokenUtility.generate(user.getId());
 	}
 }
