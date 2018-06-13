@@ -3,4 +3,4 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
   server:  
-    enableSelfPreservation : false
+    enableSelfPreservation : true
