@@ -37,12 +37,6 @@ public class UserController {
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody LoginDto dto, HttpServletRequest req) {
 		try {
-			Map<String, String[]> map = req.getParameterMap();
-			for (String key : map.keySet()) {
-				System.out.printf("Key: %s, Value: %s\n", key, map.get(key));
-			}
-			System.out.println(req.getParameter("my-test-key"));
-			System.out.println(req.getRequestURI());
 			String token = userService.login(dto);
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("token", token);
