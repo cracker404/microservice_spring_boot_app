@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.fundoonote.msapi_gateway.utils.TokenUtility;
@@ -24,6 +26,8 @@ public class RequestModifier extends ZuulFilter {
 	
 	@Autowired
 	private TokenUtility tokenUtility;
+	
+	
 
 	@Override
 	public boolean shouldFilter() {
@@ -32,7 +36,7 @@ public class RequestModifier extends ZuulFilter {
 
 	@Override
 	public Object run() throws ZuulException {
-		/*RequestContext context = RequestContext.getCurrentContext();
+		RequestContext context = RequestContext.getCurrentContext();
 		
 		HttpServletRequest request = context.getRequest();
 		log.info(String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));
@@ -42,12 +46,11 @@ public class RequestModifier extends ZuulFilter {
 			params = new HashMap<>();
 		}
 		if (!request.getRequestURI().contains("login") && !request.getRequestURI().contains("registration")) {
-			String token = context.getRequest().getHeader("Authorization");
-			String userId = tokenUtility.verify(token);
-			params.put("userid", Arrays.asList(userId));
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			params.put("userid", Arrays.asList(authentication.getName()));
 			System.out.println("Called");
 			context.setRequestQueryParams(params);
-		}*/
+		}
 		return null;
 	}
 

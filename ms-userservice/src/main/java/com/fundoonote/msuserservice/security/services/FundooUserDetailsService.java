@@ -31,7 +31,7 @@ public class FundooUserDetailsService implements UserDetailsService {
 		GrantedAuthority authority = new SimpleGrantedAuthority("USER");
 		List<GrantedAuthority> authorities = Arrays.asList(authority);
 		 UserDetails userDetails = new org.springframework.security.core.userdetails.
-	                User(user.getEmail(), user.getPassword(), authorities);
+	                User(String.valueOf(user.getId()), user.getPassword(), authorities);
 		return userDetails;
 	}
 }

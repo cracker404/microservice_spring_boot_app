@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fundoonote.msuserservice.models.LoginDto;
@@ -46,7 +47,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/test")
-	public String testApi() {
-		return "Hello " + UUID.randomUUID().toString();
+	public String testApi(@RequestParam String userid) {
+		return "Hello " + userid + " " + UUID.randomUUID().toString();
 	}
 }
