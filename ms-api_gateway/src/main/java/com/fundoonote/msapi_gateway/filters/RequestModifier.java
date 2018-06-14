@@ -12,13 +12,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fundoonote.msapi_gateway.chache.RedisService;
 import com.fundoonote.msapi_gateway.utils.TokenUtility;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 
 @Component
-public class RequestModifier extends ZuulFilter {
+public class RequestModifier extends ZuulFilter 
+{
+	@Autowired
+	private RedisService redisService;
 	
 	private static Logger log = LoggerFactory.getLogger(RequestModifier.class);
 	
@@ -31,7 +35,8 @@ public class RequestModifier extends ZuulFilter {
 	}
 
 	@Override
-	public Object run() throws ZuulException {
+	public Object run() throws ZuulException 
+	{
 		RequestContext context = RequestContext.getCurrentContext();
 		
 		HttpServletRequest request = context.getRequest();
@@ -41,9 +46,20 @@ public class RequestModifier extends ZuulFilter {
 		if (params == null) {
 			params = new HashMap<>();
 		}
-		if (!request.getRequestURI().contains("login") && !request.getRequestURI().contains("registration")) {
+		if (!request.getRequestURI().contains("login") && !request.getRequestURI().contains("register")) {
 			String token = context.getRequest().getHeader("Authorization");
-			String userId = tokenUtility.verify(token);
+			String userId = "";
+			try 
+			{
+				userId = tokenUtility.verify(token);
+				Object object= redisService.get("USER", "user"+userId);
+				System.out.println(object.toString());
+			} catch (Exception e) 
+			{
+				context.setResponseStatusCode(401);
+				context.setResponseBody("UnAuthorized");
+				context.setSendZuulResponse(false);
+			}
 			params.put("userid", Arrays.asList(userId));
 			System.out.println("Called");
 			context.setRequestQueryParams(params);

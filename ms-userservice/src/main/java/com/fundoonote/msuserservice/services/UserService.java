@@ -1,9 +1,13 @@
 package com.fundoonote.msuserservice.services;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fundoonote.msuserservice.TokenUtility;
+import com.fundoonote.msuserservice.chache.RedisService;
 import com.fundoonote.msuserservice.models.LoginDto;
 import com.fundoonote.msuserservice.models.RegistrationDto;
 import com.fundoonote.msuserservice.models.User;
@@ -16,8 +20,11 @@ public class UserService {
 	private TokenUtility tokenUtility;
 	@Autowired
 	UserRepository userRepository;
-
-	public void register(RegistrationDto dto) {
+	@Autowired
+	private RedisService redisService;
+	
+	public void register(RegistrationDto dto) 
+	{
 		User user = new User();
 		user.setName(dto.getName());
 		user.setContact(dto.getContact());
@@ -25,6 +32,9 @@ public class UserService {
 		user.setPassword(dto.getPassword());
 
 		userRepository.save(user);
+		Map<String, Object> map = new HashMap<>();
+		map.put("role", (user.getRole()).toUpperCase());
+		redisService.save("USER", "user"+user.getId(), map);
 	}
 
 	public String login(LoginDto dto) {

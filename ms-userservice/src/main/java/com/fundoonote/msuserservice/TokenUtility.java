@@ -12,7 +12,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class TokenUtility {
 
-	@Value("${jwt.secret}")
+	@Value("${security.jwt.client-secret}")
 	private String key;
 	
 	public String generate(long userId) 

@@ -48,6 +48,7 @@ public class UserController {
 	
 	@GetMapping("/test")
 	public String testApi() {
+		System.out.println("Inside Test Api");
 		return "Hello " + UUID.randomUUID().toString();
 	}
 }
