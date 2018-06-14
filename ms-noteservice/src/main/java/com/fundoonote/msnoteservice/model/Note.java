@@ -1,88 +1,99 @@
 package com.fundoonote.msnoteservice.model;
 
 import java.util.Date;
+import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table
 public class Note {
+
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long noteId;
-
+	@GeneratedValue(strategy= GenerationType.AUTO)
+	private long noteId;
+	
+	@NotNull
+	@Column
 	private String title;
-
+	
+	@NotNull
+	@Column
 	private String body;
-
-	private Date createDate;
-
+	
+	@Column
+	private	 Date createdDate;
+	
+	@Column
 	private Date lastUpdated;
-
-	private String imageurl;
 	
-	private long userId;
+	@Column
+	private String imageUrl;
 	
-
-	public Long getNoteId() {
+	@Column
+	private String userId;
+	
+	@Column
+	private String shareByUserId;
+	
+	@OneToMany(mappedBy="note")
+	private Set<Collaboration> collaborations;
+	
+	public long getNoteId() {
 		return noteId;
 	}
-
-	public void setNoteId(Long noteId) {
+	public void setNoteId(long noteId) {
 		this.noteId = noteId;
 	}
-
 	public String getTitle() {
 		return title;
 	}
-
 	public void setTitle(String title) {
 		this.title = title;
 	}
-
 	public String getBody() {
 		return body;
 	}
-
 	public void setBody(String body) {
 		this.body = body;
 	}
-
-	public Date getCreateDate() {
-		return createDate;
+	public Date getCreatedDate() {
+		return createdDate;
 	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
 	}
-
 	public Date getLastUpdated() {
 		return lastUpdated;
 	}
-
 	public void setLastUpdated(Date lastUpdated) {
 		this.lastUpdated = lastUpdated;
 	}
-
-	public String getImageurl() {
-		return imageurl;
+	public String getImageUrl() {
+		return imageUrl;
 	}
-
-	public void setImageurl(String imageurl) {
-		this.imageurl = imageurl;
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
-
-	public long getUserId() {
+	public String getUserId() {
 		return userId;
 	}
-
-	public void setUserId(long userId) {
+	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-
+	public String getShareByUserId() {
+		return shareByUserId;
+	}
+	public void setShareByUserId(String shareByUserId) {
+		this.shareByUserId = shareByUserId;
+	}
+	
 	
 }
