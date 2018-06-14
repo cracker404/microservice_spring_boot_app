@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.fundoonote.msuserservice.TokenUtility;
@@ -18,18 +19,22 @@ public class UserService {
 	
 	@Autowired
 	private TokenUtility tokenUtility;
+	
 	@Autowired
-	UserRepository userRepository;
+	private UserRepository userRepository;
+	
 	@Autowired
 	private RedisService redisService;
 	
-	public void register(RegistrationDto dto) 
-	{
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	public void register(RegistrationDto dto) {
 		User user = new User();
 		user.setName(dto.getName());
 		user.setContact(dto.getContact());
 		user.setEmail(dto.getEmail());
-		user.setPassword(dto.getPassword());
+		user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
 		userRepository.save(user);
 		Map<String, Object> map = new HashMap<>();
