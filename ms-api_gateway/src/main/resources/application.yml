@@ -4,7 +4,6 @@ zuul:
     user:
       path: /user/**
       service-id: ms-user
-      #url:  http://localhost:8008
     notes:
       path: /notes/**
       service-id: ms-note
@@ -25,3 +24,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+      
+spring:
+  cloud:
+    config:
+      uri: http://localhost:8081

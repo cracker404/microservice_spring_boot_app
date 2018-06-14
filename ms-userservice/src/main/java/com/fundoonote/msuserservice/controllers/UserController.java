@@ -1,6 +1,5 @@
 package com.fundoonote.msuserservice.controllers;
 
-import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;

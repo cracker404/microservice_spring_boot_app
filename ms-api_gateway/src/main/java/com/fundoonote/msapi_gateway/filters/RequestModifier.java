@@ -32,7 +32,7 @@ public class RequestModifier extends ZuulFilter {
 
 	@Override
 	public Object run() throws ZuulException {
-		RequestContext context = RequestContext.getCurrentContext();
+		/*RequestContext context = RequestContext.getCurrentContext();
 		
 		HttpServletRequest request = context.getRequest();
 		log.info(String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));
@@ -47,7 +47,7 @@ public class RequestModifier extends ZuulFilter {
 			params.put("userid", Arrays.asList(userId));
 			System.out.println("Called");
 			context.setRequestQueryParams(params);
-		}
+		}*/
 		return null;
 	}
 
