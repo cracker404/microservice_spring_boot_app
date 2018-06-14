@@ -1,6 +1,7 @@
 package com.fundoonote.msuserservice.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.fundoonote.msuserservice.TokenUtility;
@@ -14,15 +15,19 @@ public class UserService {
 	
 	@Autowired
 	private TokenUtility tokenUtility;
+	
 	@Autowired
-	UserRepository userRepository;
+	private UserRepository userRepository;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	public void register(RegistrationDto dto) {
 		User user = new User();
 		user.setName(dto.getName());
 		user.setContact(dto.getContact());
 		user.setEmail(dto.getEmail());
-		user.setPassword(dto.getPassword());
+		user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
 		userRepository.save(user);
 	}
