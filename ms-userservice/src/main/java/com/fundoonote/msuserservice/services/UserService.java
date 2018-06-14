@@ -7,18 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.fundoonote.msuserservice.TokenUtility;
 import com.fundoonote.msuserservice.chache.RedisService;
-import com.fundoonote.msuserservice.models.LoginDto;
 import com.fundoonote.msuserservice.models.RegistrationDto;
 import com.fundoonote.msuserservice.models.User;
 import com.fundoonote.msuserservice.repositories.UserRepository;
 
 @Service
 public class UserService {
-	
-	@Autowired
-	private TokenUtility tokenUtility;
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -29,7 +24,8 @@ public class UserService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	public void register(RegistrationDto dto) {
+	public void register(RegistrationDto dto) 
+	{
 		User user = new User();
 		user.setName(dto.getName());
 		user.setContact(dto.getContact());
@@ -42,13 +38,4 @@ public class UserService {
 		redisService.save("USER", "user"+user.getId(), map);
 	}
 
-	public String login(LoginDto dto) {
-		User user = userRepository.findByEmail(dto.getEmail());
-		
-		if(user == null || !user.getPassword().equals(dto.getPassword())) {
-			throw new RuntimeException("Invalid credentials");
-		}
-		
-		return tokenUtility.generate(user.getId());
-	}
 }

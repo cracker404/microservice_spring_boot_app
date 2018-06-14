@@ -16,7 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.fundoonote.msapi_gateway.chache.RedisService;
-import com.fundoonote.msapi_gateway.utils.TokenUtility;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
@@ -27,9 +26,6 @@ public class RequestModifier extends ZuulFilter {
 	private RedisService redisService;
 
 	private static Logger log = LoggerFactory.getLogger(RequestModifier.class);
-
-	@Autowired
-	private TokenUtility tokenUtility;
 
 	@Override
 	public boolean shouldFilter() {

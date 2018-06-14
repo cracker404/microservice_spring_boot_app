@@ -28,7 +28,7 @@ public class FundooUserDetailsService implements UserDetailsService {
 			throw new UsernameNotFoundException("Invalid credentials");
 		}
 		
-		GrantedAuthority authority = new SimpleGrantedAuthority("USER");
+		GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
 		List<GrantedAuthority> authorities = Arrays.asList(authority);
 		 UserDetails userDetails = new org.springframework.security.core.userdetails.
 	                User(String.valueOf(user.getId()), user.getPassword(), authorities);
