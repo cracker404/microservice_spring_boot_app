@@ -48,7 +48,7 @@ public class RequestModifier extends ZuulFilter {
 		if (params == null) {
 			params = new HashMap<>();
 		}
-		if (!request.getRequestURI().contains("login") && !request.getRequestURI().contains("register")) {
+		if (!request.getRequestURI().contains("login") && !request.getRequestURI().contains("register") && !request.getRequestURI().contains("oauth/token")) {
 			try {
 				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 				
