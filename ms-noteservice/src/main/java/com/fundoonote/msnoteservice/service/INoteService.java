@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fundoonote.msnoteservice.exception.NSException;
 import com.fundoonote.msnoteservice.model.Label;
 import com.fundoonote.msnoteservice.model.Note;
 import com.fundoonote.msnoteservice.model.NoteDto;
@@ -12,7 +13,7 @@ import com.fundoonote.msnoteservice.model.Status;
 
 public interface INoteService {
 
-	void saveNote(NoteDto noteDto, String userId);
+	void saveNote(NoteDto noteDto, String userId) throws NSException;
 
 	void updateNote(Note note);
 

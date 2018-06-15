@@ -2,6 +2,7 @@ package com.fundoonote.msnoteservice.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import com.fundoonote.msnoteservice.dao.ILabeDao;
 import com.fundoonote.msnoteservice.dao.INoteDao;
 import com.fundoonote.msnoteservice.dao.INotePrefDao;
 import com.fundoonote.msnoteservice.dao.IUserDao;
+import com.fundoonote.msnoteservice.exception.NSException;
 import com.fundoonote.msnoteservice.model.Collaboration;
 import com.fundoonote.msnoteservice.model.Label;
 import com.fundoonote.msnoteservice.model.Note;
@@ -19,41 +21,45 @@ import com.fundoonote.msnoteservice.model.NoteDto;
 import com.fundoonote.msnoteservice.model.NotePreferences;
 import com.fundoonote.msnoteservice.model.Status;
 import com.fundoonote.msnoteservice.model.User;
+import com.fundoonote.msnoteservice.utility.OperationType;
 import com.fundoonote.msnoteservice.utility.S3Service;
-
+import com.fundoonote.msnoteservice.utility.messagesservice.IJmsService;
 
 @Service
 public class NoteServiceImp implements INoteService {
 
 	@Autowired
 	INoteDao noteDao;
-	
+
 	@Autowired
 	ILabeDao labelDao;
+
+	@Autowired
+	IJmsService jmsService;
 	
 	@Autowired
 	INotePrefDao notePrefDao;
-	
+
 	@Autowired
 	IUserDao userDao;
-	
-	@Autowired 
+
+	@Autowired
 	ICollaboratorDao collaboratorDao;
-	
+
 	@Autowired
 	S3Service s3Service;
-	
+
 	@Override
-	public void saveNote(NoteDto noteDto, String userId) {
-		
+	public void saveNote(NoteDto noteDto, String userId) throws NSException {
+
 		Note note = noteDto.getNote();
 		note.setUserId(userId);
 		noteDao.save(note);
-		
+		jmsService.addToQueue(note, OperationType.SAVE);
 		NotePreferences notePref = noteDto.getNotePreferences();
 		notePref.setUserId(userId);
 		notePrefDao.save(notePref);
-			
+
 	}
 
 	@Override
@@ -66,21 +72,27 @@ public class NoteServiceImp implements INoteService {
 	@Override
 	public void updatenotePref(NotePreferences notePref) {
 
-		//noteDao.save(notePref);
+		// noteDao.save(notePref);
 	}
 
 	@Override
 	public void deleteNote(int noteId) {
-		
+
 		noteDao.deleteById(noteId);
 	}
 
 	@Override
 	public List<NoteDto> getNotes(String loggedInUser) {
-		
-		NotePreferences notePref = notePrefDao.findByUserId(loggedInUser);
-		
-		return null;
+
+		List<NotePreferences> notePreferences = notePrefDao.getAllNotePreferenceByUserId(loggedInUser);
+		List<NoteDto> result = notePreferences.stream().map(temp -> {
+			NoteDto noteDto = new NoteDto();
+			noteDto.setNote(temp.getNote());
+			noteDto.setNotePreferences(temp);
+			return noteDto;
+		}).collect(Collectors.toList());
+
+		return result;
 	}
 
 	@Override
@@ -91,11 +103,11 @@ public class NoteServiceImp implements INoteService {
 
 	@Override
 	public void renameLabel(Label label, String loggedInUserId) {
-		
+
 		Label labelFromDB = labelDao.getOne(label.getLabelId());
 		labelFromDB.setName(label.getName());
 		labelDao.save(labelFromDB);
-		
+
 	}
 
 	@Override
@@ -105,7 +117,7 @@ public class NoteServiceImp implements INoteService {
 
 	@Override
 	public void deleteLabel(int labelId) {
-		
+
 		labelDao.deleteById(labelId);
 	}
 
@@ -119,12 +131,11 @@ public class NoteServiceImp implements INoteService {
 	@Override
 	public void saveLabelFromNote(Label label, int noteId, String loggedInUserId) {
 
-		
 	}
 
 	@Override
 	public void deleteImage(int userId, int noteId, String key) {
-		
+
 		Note note = noteDao.getOne(noteId);
 		s3Service.deleteFileFromS3(key);
 		note.setImageUrl(null);
@@ -132,7 +143,7 @@ public class NoteServiceImp implements INoteService {
 
 	@Override
 	public void saveImage(MultipartFile image, int noteId) {
-		
+
 		Note note = noteDao.getOne(noteId);
 		String imageUrl = s3Service.saveImageToS3(noteId, image);
 		note.setImageUrl(imageUrl);
@@ -141,12 +152,12 @@ public class NoteServiceImp implements INoteService {
 
 	@Override
 	public void collaborat(String sharingUserEmail, int noteId, String loggedInUserEmail) {
-		
+
 		Collaboration collaboration = new Collaboration();
 		Note note = noteDao.getOne(noteId);
 		User loggedInUser = userDao.findByEmail(loggedInUserEmail);
 		User sharedUser = userDao.findByEmail(sharingUserEmail);
-		
+
 		collaboration.setNote(note);
 		collaboration.setShared_By_UserId(sharedUser.getUserId());
 		collaboration.setShared_UserId(loggedInUser.getUserId());
@@ -154,38 +165,36 @@ public class NoteServiceImp implements INoteService {
 
 	@Override
 	public void removeCollaboratUser() {
-		
-		
+
 	}
 
 	@Override
 	public void trashOrRestore(int notePrefId, Status status, String loggedInUserId) {
-		
+
 		NotePreferences notePref = notePrefDao.getOne(notePrefId);
 		notePref.setStatus(status);
 		notePref.setUserId(loggedInUserId);
 		notePrefDao.save(notePref);
-		
+
 	}
 
 	@Override
 	public void pinOrUnpin(int notePrefId, boolean isPinned, String loggedInUserId) {
-		
+
 		NotePreferences notePref = notePrefDao.getOne(notePrefId);
 		notePref.setPin(isPinned);
 		notePref.setUserId(loggedInUserId);
-		notePrefDao.save(notePref);				
+		notePrefDao.save(notePref);
 	}
 
 	@Override
 	public void archiveOrUnarchive(int notePrefId, Status status, String loggedInUserId) {
-				
+
 		NotePreferences notePref = notePrefDao.getOne(notePrefId);
 		notePref.setStatus(status);
 		notePref.setUserId(loggedInUserId);
 		notePrefDao.save(notePref);
-		
+
 	}
-	
-	
+
 }

@@ -1,5 +1,6 @@
 package com.fundoonote.msnoteservice.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
@@ -14,7 +15,12 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table
-public class Note {
+public class Note implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy= GenerationType.AUTO)

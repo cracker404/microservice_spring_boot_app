@@ -1,5 +1,7 @@
 package com.fundoonote.msnoteservice.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fundoonote.msnoteservice.exception.NSException;
 import com.fundoonote.msnoteservice.model.Label;
 import com.fundoonote.msnoteservice.model.Note;
 import com.fundoonote.msnoteservice.model.NoteDto;
@@ -31,7 +34,7 @@ public class NoteController {
 	INoteService noteService;
 	
 	@RequestMapping(value="/save", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<?> saveNote(@RequestBody NoteDto note, @RequestParam String userId){
+	ResponseEntity<?> saveNote(@RequestBody NoteDto note, @RequestParam String userId) throws NSException{
 		
 		noteService.saveNote(note, userId);
 		return new ResponseEntity<String>("Note created..." ,HttpStatus.OK);	
@@ -67,10 +70,9 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value="/getnotes", method = RequestMethod.GET)
-	ResponseEntity<String> getNotes(@RequestParam String loggedInUser){
-		Response response = new Response();
-		noteService.getNotes(loggedInUser);
-		return new ResponseEntity<String>("Note deleted succesfully", HttpStatus.OK);
+	ResponseEntity<List<NoteDto>> getNotes(@RequestParam String loggedInUser){
+		List<NoteDto> notes = noteService.getNotes(loggedInUser);
+		return new ResponseEntity<List<NoteDto>>(notes, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/label/save", method = RequestMethod.POST)
