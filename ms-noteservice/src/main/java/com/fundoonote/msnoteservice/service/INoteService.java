@@ -15,11 +15,11 @@ public interface INoteService {
 
 	void saveNote(NoteDto noteDto, String userId) throws NSException;
 
-	void updateNote(Note note);
+	void updateNote(Note note) throws NSException;
 
 	void updatenotePref(NotePreferences notePref);
 
-	void deleteNote(int noteId);
+	void deleteNote(int noteId) throws NSException;
 
 	List<NoteDto> getNotes(String loggedInUser);
 

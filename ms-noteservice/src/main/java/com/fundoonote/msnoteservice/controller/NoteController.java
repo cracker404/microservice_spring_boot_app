@@ -41,7 +41,7 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value="/updateNote", method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<Response> updateNote(@RequestBody Note note, HttpServletRequest request){
+	ResponseEntity<Response> updateNote(@RequestBody Note note, HttpServletRequest request) throws NSException{
 		
 		Response response = new Response();
 		noteService.updateNote(note);
@@ -61,7 +61,7 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value="/deletenote/{noteId}", method = RequestMethod.DELETE)
-	ResponseEntity<Response> deleteNote(@PathVariable int noteId){
+	ResponseEntity<Response> deleteNote(@PathVariable int noteId) throws NSException{
 		Response response = new Response();
 		noteService.deleteNote(noteId);
 		response.setStatusCode(200);

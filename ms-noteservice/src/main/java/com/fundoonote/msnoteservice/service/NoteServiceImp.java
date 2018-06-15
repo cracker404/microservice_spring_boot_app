@@ -57,16 +57,19 @@ public class NoteServiceImp implements INoteService {
 		noteDao.save(note);
 		jmsService.addToQueue(note, OperationType.SAVE);
 		NotePreferences notePref = noteDto.getNotePreferences();
+		
 		notePref.setUserId(userId);
 		notePrefDao.save(notePref);
+		jmsService.addToQueue(notePref, OperationType.SAVE);
 
 	}
 
 	@Override
-	public void updateNote(Note note) {
+	public void updateNote(Note note) throws NSException {
 		Date updatedDate = new Date();
 		note.setLastUpdated(updatedDate);
 		noteDao.save(note);
+		jmsService.addToQueue(note, OperationType.UPDATE);
 	}
 
 	@Override
@@ -76,9 +79,10 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void deleteNote(int noteId) {
+	public void deleteNote(int noteId) throws NSException {
 
 		noteDao.deleteById(noteId);
+		jmsService.addToQueue(noteId, OperationType.DELETE);
 	}
 
 	@Override
