@@ -1,5 +1,7 @@
 package com.fundoonote.msnoteservice.model;
 
-public class UserView {
+public enum Status {
 
+	NONE, ARCHIVE, TRASH
+	
 }
