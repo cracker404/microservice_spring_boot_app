@@ -1,11 +1,18 @@
 package com.fundoonote.msuserservice.models;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-public class User {
+public class User implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue
@@ -18,6 +25,8 @@ public class User {
 	private String contact;
 
 	private String password;
+	
+	private String role = "USER";
 
 	public long getId() {
 		return id;
@@ -57,6 +66,14 @@ public class User {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 }
