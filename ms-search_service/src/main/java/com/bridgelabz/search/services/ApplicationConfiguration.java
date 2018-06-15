@@ -23,14 +23,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Configuration
 public class ApplicationConfiguration
 {
-   @Value("${aws.s3.access.key}")
+   /*@Value("${aws.s3.access.key}")
    private String s3Access;
 
    @Value("${aws.s3.secret.key}")
    private String s3secretKey;
 
    @Value("${aws.s3.region}")
-   private String region;
+   private String region;*/
    
    @Bean
    public PasswordEncoder passwordEncoder()
@@ -68,11 +68,11 @@ public class ApplicationConfiguration
       return new ObjectMapper();
    }
 
-   @Bean
+   /*@Bean
    public AmazonS3 s3client() {
       BasicAWSCredentials awsCreds = new BasicAWSCredentials(s3Access, s3secretKey);
       return AmazonS3ClientBuilder.standard().withRegion(region)
             .withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
-   }
+   }*/
    
 }
