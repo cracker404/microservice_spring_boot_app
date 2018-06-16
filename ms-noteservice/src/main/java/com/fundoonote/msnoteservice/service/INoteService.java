@@ -15,11 +15,11 @@ public interface INoteService {
 
 	void saveNote(NoteDto noteDto, String userId) throws NSException;
 
-	void updateNote(Note note) throws NSException;
+	void updateNote(Note note, String userId) throws NSException;
 
 	void updatenotePref(NotePreferences notePref);
 
-	void deleteNote(int noteId) throws NSException;
+	void deleteNote(long noteId) throws NSException;
 
 	List<NoteDto> getNotes(String loggedInUser);
 
@@ -31,15 +31,15 @@ public interface INoteService {
 
 	void deleteLabel(int labelId);
 
-	void addRemoveLabel(int noteId, int labelId);
+	void addRemoveLabel(long noteId, int labelId);
 
-	void saveLabelFromNote(Label label, int noteId, String loggedInUserId);
+	void saveLabelFromNote(Label label, long noteId, String loggedInUserId);
 
-	void saveImage(MultipartFile image, int noteId);
+	void saveImage(MultipartFile image, long noteId);
 
-	void deleteImage(int userId, int noteId, String key);
+	void deleteImage(int userId, long noteId, String key);
 
-	void collaborat(String sharingUserEmail, int noteId, String loggedInUserEmail);
+	void collaborat(String sharingUserEmail, long noteId, String loggedInUserEmail);
 
 	void removeCollaboratUser();
 
@@ -48,5 +48,6 @@ public interface INoteService {
 	void archiveOrUnarchive(int notePrefId, Status status, String loggedInUserId);
 
 	void trashOrRestore(int notePrefId, Status status, String loggedInUserId);
+
 
 }

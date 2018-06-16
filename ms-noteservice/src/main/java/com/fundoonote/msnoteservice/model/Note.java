@@ -17,9 +17,6 @@ import javax.validation.constraints.NotNull;
 @Table
 public class Note implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -48,6 +45,9 @@ public class Note implements Serializable{
 	
 	@Column
 	private String shareByUserId;
+	
+	@OneToMany(mappedBy = "note")
+	private Set<NotePreferences> notePreferences;
 	
 	@OneToMany(mappedBy="note")
 	private Set<Collaboration> collaborations;

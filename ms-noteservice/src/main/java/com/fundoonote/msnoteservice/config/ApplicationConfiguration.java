@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Configuration
 public class ApplicationConfiguration {
 
-	@Value("${aws.s3.access.key}")
+	   @Value("${aws.s3.access.key}")
 	   private String s3Access;
 
 	   @Value("${aws.s3.secret.key}")

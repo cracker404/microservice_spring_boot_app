@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.fundoonote.msnoteservice.model.Note;
 
 @Repository
-public interface INoteDao extends JpaRepository<Note, Integer> {
+public interface INoteDao extends JpaRepository<Note, Long> {
 
 }

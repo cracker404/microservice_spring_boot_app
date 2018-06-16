@@ -57,7 +57,10 @@ public class NoteServiceImp implements INoteService {
 		noteDao.save(note);
 		jmsService.addToQueue(note, OperationType.SAVE);
 		NotePreferences notePref = noteDto.getNotePreferences();
-		
+		notePref.setNote(note);
+		Date date = new Date();
+		note.setCreatedDate(date);
+		note.setLastUpdated(date);
 		notePref.setUserId(userId);
 		notePrefDao.save(notePref);
 		jmsService.addToQueue(notePref, OperationType.SAVE);
@@ -65,21 +68,24 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void updateNote(Note note) throws NSException {
+	public void updateNote(Note note, String userId) throws NSException {
+		Note oldNote = noteDao.getOne(note.getNoteId());
+		oldNote.setTitle(note.getTitle());
+		oldNote.setBody(note.getBody());
 		Date updatedDate = new Date();
-		note.setLastUpdated(updatedDate);
-		noteDao.save(note);
-		jmsService.addToQueue(note, OperationType.UPDATE);
+		oldNote.setLastUpdated(updatedDate);
+		noteDao.save(oldNote);
+		jmsService.addToQueue(oldNote, OperationType.UPDATE);
 	}
 
 	@Override
 	public void updatenotePref(NotePreferences notePref) {
 
-		// noteDao.save(notePref);
+		//noteDao.save(notePref);
 	}
 
 	@Override
-	public void deleteNote(int noteId) throws NSException {
+	public void deleteNote(long noteId) throws NSException {
 
 		noteDao.deleteById(noteId);
 		jmsService.addToQueue(noteId, OperationType.DELETE);
@@ -111,7 +117,6 @@ public class NoteServiceImp implements INoteService {
 		Label labelFromDB = labelDao.getOne(label.getLabelId());
 		labelFromDB.setName(label.getName());
 		labelDao.save(labelFromDB);
-
 	}
 
 	@Override
@@ -126,19 +131,19 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void addRemoveLabel(int noteId, int labelId) {
+	public void addRemoveLabel(long noteId, int labelId) {
 
 		Note note = noteDao.getOne(noteId);
 		Label label = labelDao.getOne(labelId);
 	}
 
 	@Override
-	public void saveLabelFromNote(Label label, int noteId, String loggedInUserId) {
+	public void saveLabelFromNote(Label label, long noteId, String loggedInUserId) {
 
 	}
 
 	@Override
-	public void deleteImage(int userId, int noteId, String key) {
+	public void deleteImage(int userId, long noteId, String key) {
 
 		Note note = noteDao.getOne(noteId);
 		s3Service.deleteFileFromS3(key);
@@ -146,7 +151,7 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void saveImage(MultipartFile image, int noteId) {
+	public void saveImage(MultipartFile image, long noteId) {
 
 		Note note = noteDao.getOne(noteId);
 		String imageUrl = s3Service.saveImageToS3(noteId, image);
@@ -155,7 +160,7 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void collaborat(String sharingUserEmail, int noteId, String loggedInUserEmail) {
+	public void collaborat(String sharingUserEmail, long noteId, String loggedInUserEmail) {
 
 		Collaboration collaboration = new Collaboration();
 		Note note = noteDao.getOne(noteId);

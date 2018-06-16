@@ -34,7 +34,7 @@ public class S3Service {
 
 	   private final Logger logger = LoggerFactory.getLogger(S3Service.class);
 	   
-	   public String saveImageToS3(int id, MultipartFile file)
+	   public String saveImageToS3(long id, MultipartFile file)
 	   {
 	      String confidentialMarkerText = "CONFIDENTIAL";
 	      Marker confidentialMarker = MarkerFactory.getMarker(confidentialMarkerText);

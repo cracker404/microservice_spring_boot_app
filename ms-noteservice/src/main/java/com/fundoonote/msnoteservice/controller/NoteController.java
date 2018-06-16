@@ -34,23 +34,25 @@ public class NoteController {
 	INoteService noteService;
 	
 	@RequestMapping(value="/save", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<?> saveNote(@RequestBody NoteDto note, @RequestParam String userId) throws NSException{
-		
+	ResponseEntity<?> saveNote(@RequestBody NoteDto note, @RequestParam("userid") String userId) throws NSException{
+		Response response = new Response();
 		noteService.saveNote(note, userId);
-		return new ResponseEntity<String>("Note created..." ,HttpStatus.OK);	
+		response.setStatusCode(200);
+		response.setResponseMessage("Note created...");
+		return new ResponseEntity<Response>(response ,HttpStatus.OK);	
 	}
 	
 	@RequestMapping(value="/updateNote", method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<Response> updateNote(@RequestBody Note note, HttpServletRequest request) throws NSException{
+	ResponseEntity<Response> updateNote(@RequestBody Note note, @RequestParam("userid") String userId) throws NSException{
 		
 		Response response = new Response();
-		noteService.updateNote(note);
+		noteService.updateNote(note, userId);
 		response.setStatusCode(200);
 		response.setResponseMessage("Note updated...");
 		return new ResponseEntity<Response>(response,HttpStatus.OK);	
 	}
 	
-	@RequestMapping(value="/updateNotePref", method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_VALUE)
+	/*@RequestMapping(value="/updateNotePref", method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Response> updateNotePref(@RequestBody NotePreferences notePref, HttpServletRequest request){
 		
 		Response response = new Response();
@@ -58,7 +60,7 @@ public class NoteController {
 		response.setStatusCode(200);
 		response.setResponseMessage("Note added...");
 		return new ResponseEntity<Response>(response,HttpStatus.OK);	
-	}
+	}*/
 	
 	@RequestMapping(value="/deletenote/{noteId}", method = RequestMethod.DELETE)
 	ResponseEntity<Response> deleteNote(@PathVariable int noteId) throws NSException{
@@ -70,22 +72,22 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value="/getnotes", method = RequestMethod.GET)
-	ResponseEntity<List<NoteDto>> getNotes(@RequestParam String loggedInUser){
-		List<NoteDto> notes = noteService.getNotes(loggedInUser);
+	ResponseEntity<List<NoteDto>> getNotes(@RequestParam("userid") String loggedInUserId){
+		List<NoteDto> notes = noteService.getNotes(loggedInUserId);
 		return new ResponseEntity<List<NoteDto>>(notes, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/label/save", method = RequestMethod.POST)
-	ResponseEntity<String> saveLabel(@RequestBody Label label,  @RequestParam String loggedInUserId){
+	ResponseEntity<Response> saveLabel(@RequestBody Label label,  @RequestParam("userid") String loggedInUserId){
 		Response response = new Response();
 		noteService.saveLabel(label,loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("label saved successfully");
-		return new ResponseEntity<String>("Note deleted succesfully", HttpStatus.OK);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/label/renamelabel", method = RequestMethod.PUT)
-	ResponseEntity<Response> renameLabel(@RequestBody Label label,  @RequestParam String loggedInUserId){
+	ResponseEntity<Response> renameLabel(@RequestBody Label label,  @RequestParam("userid") String loggedInUserId){
 		
 		Response response = new Response();
 		noteService.renameLabel(label, loggedInUserId);
@@ -94,15 +96,17 @@ public class NoteController {
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	@RequestMapping(value="/label/deletelabel{labelId}", method = RequestMethod.DELETE)
+	@RequestMapping(value="/label/deletelabel/{labelId}", method = RequestMethod.DELETE)
 	ResponseEntity<Response> deleteLabel(@PathVariable int labelId){
 		
 		Response response = new Response();
 		noteService.deleteLabel(labelId);
+		response.setResponseMessage("Label deleted successfully");
+		response.setStatusCode(200);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/label/addremovelabel", method = RequestMethod.POST)
+	/*@RequestMapping(value="/label/addremovelabel", method = RequestMethod.POST)
 	ResponseEntity<Response> addRemoveLabel(@RequestParam int noteId, @RequestParam int labelId){
 		
 		Response response = new Response();
@@ -111,12 +115,12 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value="/label/saveLabelFromNote", method = RequestMethod.POST)
-	ResponseEntity<Response> saveLabelFromNote(@RequestBody Label label, @RequestParam int noteId, @RequestParam String loggedInUserId){
+	ResponseEntity<Response> saveLabelFromNote(@RequestBody Label label, @RequestParam int noteId, @RequestParam("userid") String loggedInUserId){
 		
 		Response response = new Response();
 		noteService.saveLabelFromNote(label, noteId, loggedInUserId);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
-	}
+	}*/
 	
 	@RequestMapping(value="/saveimage", method = RequestMethod.POST)
 	ResponseEntity<Response> saveImage(@RequestPart MultipartFile image, int noteId){
@@ -129,7 +133,7 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value="/deleteimage", method = RequestMethod.DELETE)
-	ResponseEntity<Response> deleteImage(@RequestParam("id") int userId, @RequestParam("noteId") int noteId,
+	ResponseEntity<Response> deleteImage(@RequestParam("userid") int userId, @RequestParam("noteId") int noteId,
 	         @RequestParam("key") String key){
 		Response response = new Response();
 		noteService.deleteImage(userId, noteId, key);
