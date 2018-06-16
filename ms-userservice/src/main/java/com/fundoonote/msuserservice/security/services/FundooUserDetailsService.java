@@ -12,17 +12,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import com.fundoonote.msuserservice.models.User;
-import com.fundoonote.msuserservice.repositories.UserRepository;
+import com.fundoonote.msuserservice.repositories.UserDAO;
 
 @Component
 public class FundooUserDetailsService implements UserDetailsService {
 
 	@Autowired
-	UserRepository userRepository;
+	UserDAO userDAO;
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByEmail(username);
+		User user = userDAO.findByEmail(username);
 		
 		if(user == null) {
 			throw new UsernameNotFoundException("Invalid credentials");
@@ -31,7 +31,7 @@ public class FundooUserDetailsService implements UserDetailsService {
 		GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
 		List<GrantedAuthority> authorities = Arrays.asList(authority);
 		 UserDetails userDetails = new org.springframework.security.core.userdetails.
-	                User(String.valueOf(user.getId()), user.getPassword(), authorities);
+	                User(String.valueOf(user.getUserId()), user.getPassword(), authorities);
 		return userDetails;
 	}
 }

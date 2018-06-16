@@ -1,41 +1,26 @@
 package com.fundoonote.msuserservice.services;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import com.fundoonote.msuserservice.chache.RedisService;
-import com.fundoonote.msuserservice.models.RegistrationDto;
+import com.fundoonote.msuserservice.exception.UserException;
 import com.fundoonote.msuserservice.models.User;
-import com.fundoonote.msuserservice.repositories.UserRepository;
+import com.fundoonote.msuserservice.models.UserDTO;
 
-@Service
-public class UserService {
-	
-	@Autowired
-	private UserRepository userRepository;
-	
-	@Autowired
-	private RedisService redisService;
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+public interface UserService 
+{
 
-	public void register(RegistrationDto dto) 
-	{
-		User user = new User();
-		user.setName(dto.getName());
-		user.setContact(dto.getContact());
-		user.setEmail(dto.getEmail());
-		user.setPassword(passwordEncoder.encode(dto.getPassword()));
+	void save(User userl)throws UserException, Exception;
 
-		userRepository.save(user);
-		Map<String, Object> map = new HashMap<>();
-		map.put("role", (user.getRole()).toUpperCase());
-		redisService.save("USER", "user"+user.getId(), map);
-	}
+	void activation(String token)throws UserException;
+
+	void uploadProfile(int loggedInUserId, MultipartFile file)throws UserException;
+
+	void forgetPassword(String email)throws UserException, Exception;
+
+	String resetPassword(String token)throws UserException;
+
+	void changePassword(String token, String newPassword)throws UserException;
+
+	UserDTO getProfile(Integer loggedInUserId)throws UserException;
 
 }

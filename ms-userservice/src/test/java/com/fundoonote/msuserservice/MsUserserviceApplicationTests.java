@@ -1,4 +1,4 @@
-package com.fundoonote.msuserservice;
+/*package com.fundoonote.msuserservice;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,3 +14,4 @@ public class MsUserserviceApplicationTests {
 	}
 
 }
+*/

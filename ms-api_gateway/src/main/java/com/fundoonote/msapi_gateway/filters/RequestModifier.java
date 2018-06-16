@@ -1,8 +1,5 @@
 package com.fundoonote.msapi_gateway.filters;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,14 +35,20 @@ public class RequestModifier extends ZuulFilter {
 		RequestContext context = RequestContext.getCurrentContext();
 
 		HttpServletRequest request = context.getRequest();
+	
 		log.info(String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));
 
-		Map<String, List<String>> params = context.getRequestQueryParams();
-		if (params == null) {
+		//Map<String, String[]> params = request.getParameterMap();
+		
+		//Map<String, List<String>> params = context.getRequestQueryParams();
+		/*if (params == null) {
 			params = new HashMap<>();
-		}
-		if (!request.getRequestURI().contains("login") && !request.getRequestURI().contains("register") && !request.getRequestURI().contains("oauth/token")) {
-			try {
+		}*/
+		if (!request.getRequestURI().contains("login") && !request.getRequestURI().contains("save") 
+				&& !request.getRequestURI().contains("oauth/token")) 
+		{
+			try
+			{
 				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 				
 				Object object = redisService.get("USER", "user" + authentication.getName());
@@ -68,9 +71,14 @@ public class RequestModifier extends ZuulFilter {
 				if (!isValid) {
 					return sendUnauthorized(context);
 				}
-				params.put("userid", Arrays.asList(authentication.getName()));
-				context.setRequestQueryParams(params);
-			} catch (Exception e) {
+				//params.put("userId", Arrays.asList(authentication.getName()));
+				//params.put("userId", new String [] {authentication.getName()});
+				//context.set("userId",authentication.getName() );
+				//context.setRequestQueryParams(param);
+				context.addZuulRequestHeader("userId",authentication.getName());
+			} 
+			catch (Exception e) 
+			{
 				return sendUnauthorized(context);
 			}
 		}
