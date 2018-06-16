@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +24,7 @@ public class SearchController {
 	IESService esService;
 
 	@GetMapping("/notes/search")
-	public List<String> searchNotes(@RequestParam String text, @RequestParam String index, @RequestParam String userid)
+	public List<String> searchNotes(@RequestHeader String text, @RequestHeader String index, @RequestParam String userid)
 			throws FNException {
 		Map<String, Float> fields = new HashMap<>();
 		fields.put("title", 2.0f);
@@ -36,7 +37,7 @@ public class SearchController {
 	}
 
 	@GetMapping("/user/search")
-	public List<String> searchUsers(@RequestParam String text, @RequestParam String index)
+	public List<String> searchUsers(@RequestHeader String text, @RequestHeader String index)
 			throws FNException {
 
 		Map<String, Float> fields = new HashMap<>();
@@ -47,22 +48,22 @@ public class SearchController {
 	}
 	
 	@PostMapping("/add")
-	public String add(@RequestBody Map<String, Object> object, @RequestParam String index, @RequestParam String id) throws FNException {
+	public String add(@RequestBody Map<String, Object> object, @RequestHeader String index, @RequestHeader String id) throws FNException {
 		return esService.save(object, index, id);
 	}
 	
 	@PutMapping("/update")
-	public String update(@RequestBody Map<String, Object> object, @RequestParam String index, @RequestParam String id) throws FNException {
+	public String update(@RequestBody Map<String, Object> object, @RequestHeader String index, @RequestHeader String id) throws FNException {
 		return esService.update(object, index, id);
 	}
 	
 	@DeleteMapping("/delete")
-	public boolean remove(@RequestParam String index, @RequestParam String id) throws FNException {
+	public boolean remove(@RequestHeader String index, @RequestHeader String id) throws FNException {
 		return esService.deleteById(id, index);
 	}
 	
 	@GetMapping("/get")
-	public String getById(@RequestParam String index, @RequestParam String id) throws FNException {
+	public String getById(@RequestHeader String index, @RequestHeader String id) throws FNException {
 		return esService.getById(id, index);
 	}
 	
