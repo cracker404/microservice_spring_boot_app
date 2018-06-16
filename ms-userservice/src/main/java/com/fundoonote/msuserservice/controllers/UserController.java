@@ -1,7 +1,6 @@
 package com.fundoonote.msuserservice.controllers;
 
-
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -11,15 +10,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fundoonote.msuserservice.config.ApplicationConfiguration;
 import com.fundoonote.msuserservice.exception.UserException;
 import com.fundoonote.msuserservice.models.User;
+import com.fundoonote.msuserservice.models.UserDTO;
 import com.fundoonote.msuserservice.response.Response;
 import com.fundoonote.msuserservice.response.UserFieldErrors;
 import com.fundoonote.msuserservice.services.UserService;
@@ -45,7 +51,6 @@ import com.fundoonote.msuserservice.services.UserService;
  * @author Bridgelabz
  */
 @RestController
-@RequestMapping("/user")
 public class UserController
 {
    @Autowired
@@ -53,6 +58,7 @@ public class UserController
 
    @Value("${redirect.url}")
    private String redirectUrl;
+  
 
    @Value("${redirect.reset.url}")
    private String redirectResetPassURL;
@@ -69,21 +75,20 @@ public class UserController
     * @return ResponseEntity with HTTP status and message.
     */
    @PostMapping("/save")
-   public ResponseEntity<Response> save(@Valid @RequestBody User user, BindingResult result, HttpServletRequest request)
+   public ResponseEntity<Response> save(@Valid @RequestBody User user, BindingResult result)
    {
       logger.debug("User Registration");
       Response response = null;
       if (result.hasErrors()) {
-         logger.error("User Registration validation error", result.getFieldErrors());
+         logger.error("User Registration validation error %s", result.getFieldErrors());
          response = new UserFieldErrors();
          response.setStatus(112);
          response.setResponseMessage(ApplicationConfiguration.getMessageAccessor().getMessage("112"));
          ((UserFieldErrors) response).setErrors(result.getFieldErrors());
          return new ResponseEntity<>(response, HttpStatus.NOT_ACCEPTABLE);
       }
-      String url = String.valueOf(request.getRequestURL());
       try {
-         userService.save(user, url);
+         userService.save(user);
       } catch (UserException e) {
          logger.error(e.getLogMessage());
          return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -111,78 +116,44 @@ public class UserController
     * @param request HTTP
     * @return redirect to login URL
     * @throws IOException if failed to redirection to login URL
-    *//*
+    */
    @GetMapping(value = "/activate/{token:.+}")
-   public ResponseEntity<Response> active(@PathVariable("token") String token, HttpServletResponse res,
-         HttpServletRequest req)
+   public ResponseEntity<Response> active(@PathVariable("token") String token, HttpServletResponse res)
    {
       logger.debug("User Activate", token);
-      try {
+      try 
+      {
          userService.activation(token);
          logger.info("redirected to login page");
          res.sendRedirect(redirectUrl);
          return null;
-      } catch (FNException e) {
+      } 
+      catch (UserException e) 
+      {
          logger.error(e.getLogMessage());
          return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
-      } catch (Exception e) {
+      } 
+      catch (Exception e) 
+      {
          logger.error(e.getMessage());
          e.printStackTrace();
-         FNException fn = new FNException(101, new Object[] { "user activate - " + e.getMessage() }, e);
+         UserException fn = new UserException(101, new Object[] { "user activate - " + e.getMessage() }, e);
          return new ResponseEntity<>(fn.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
       }
    }
-
-   *//**
-    * <p>
-    * This is simple login rest API where validate with valid existing user from
-    * DB. If user found then give successful response with JWT token. If not
-    * found or some thing other, then return appropriate response.
-    * </p>
-    * 
-    * @param user login credential
-    * @param resp HttpServletResponse
-    * @return Response Entity.
-    *//*
-   @PostMapping("/login")
-   public ResponseEntity<?> login(@RequestBody Map<String, String> map, HttpServletResponse resp)
-   {
-      logger.debug("user login");
-      Response response = new Response();
-      String token = null;
-      try {
-         token = userService.login(map);
-      } catch (FNException e) {
-         logger.error(e.getLogMessage());
-         return new ResponseEntity<Response>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
-      } catch (Exception e) {
-         logger.error(e.getMessage());
-         FNException fn = new FNException(101, new Object[] { "user login - " + e.getMessage() }, e);
-         return new ResponseEntity<Response>(fn.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-      resp.setHeader("Authorization", token);
-      
-       * HttpHeaders headers = new HttpHeaders(); headers.add("Authorization",
-       * token);
-       
-      response.setStatus(200);
-      response.setResponseMessage("Login successfull");
-      logger.debug("Login successfull", response);
-      return new ResponseEntity<Response>(response, HttpStatus.OK);
-   }
-
    @PostMapping("image")
-   public ResponseEntity<?> saveImage(@RequestAttribute("id") String loggedInUserId, @RequestPart MultipartFile file)
+   public ResponseEntity<?> saveImage(@RequestHeader(name="userId") Integer loggedInUserId , @RequestPart MultipartFile file)
    {
       Response response = new Response();
-      try {
+      try 
+      {
          userService.uploadProfile(loggedInUserId, file);
-      } catch (FNException e) {
+      } catch (UserException e) {
          logger.error(e.getMessage());
          return new ResponseEntity<Response>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
       } catch (Exception e) {
          logger.error(e.getMessage());
-         FNException fn = new FNException(101, new Object[] { "user login - " + e.getMessage() }, e);
+         UserException fn = new UserException(101, new Object[] { "user login - " + e.getMessage() }, e);
          return new ResponseEntity<Response>(fn.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       response.setStatus(200);
@@ -192,18 +163,17 @@ public class UserController
    }
 
    @PostMapping("forgotpassword")
-   public ResponseEntity<Response> forgetPassword(HttpServletRequest request, @RequestParam String email)
+   public ResponseEntity<Response> forgetPassword(@RequestParam String email)
    {
       Response response = new Response();
-      String url = String.valueOf(request.getRequestURL());
       try {
-         userService.forgetPassword(email, url);
-      } catch (FNException e) {
+         userService.forgetPassword(email);
+      } catch (UserException e) {
          logger.error(e.getLogMessage());
          return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
       } catch (Exception e) {
          logger.error(e.getMessage());
-         FNException fn = new FNException(101, new Object[] { "forget password - " + e.getMessage() }, e);
+         UserException fn = new UserException(101, new Object[] { "forget password - " + e.getMessage() }, e);
          return new ResponseEntity<>(fn.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       response.setStatus(200);
@@ -215,18 +185,22 @@ public class UserController
    @GetMapping("/resetpassword/{token:.+}")
    public ResponseEntity<Response> resetPassword(@PathVariable("token") String token, HttpServletResponse res)
    {
-      try {
+      try 
+      {
          String resetToken = userService.resetPassword(token);
          redirectResetPassURL = redirectResetPassURL + "?resetToken=" + resetToken;
          res.sendRedirect(redirectResetPassURL);
-
          return null;
-      } catch (FNException e) {
+      } 
+      catch (UserException e) 
+      {
          logger.error(e.getMessage());
          return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
-      } catch (Exception e) {
+      }
+      catch (Exception e) 
+      {
          logger.error(e.getMessage());
-         FNException fn = new FNException(101, new Object[] { "forget password - " + e.getMessage() }, e);
+         UserException fn = new UserException(101, new Object[] { "forget password - " + e.getMessage() }, e);
          return new ResponseEntity<>(fn.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
       }
    }
@@ -237,13 +211,13 @@ public class UserController
       try {
          userService.changePassword(token, newPassword);
       } 
-      catch (FNException e) {
+      catch (UserException e) {
          logger.error(e.getMessage());
          return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
       } 
       catch (Exception e) {
          logger.error(e.getMessage());
-         FNException fn = new FNException(101, new Object[] { "forget password - " + e.getMessage() }, e);
+         UserException fn = new UserException(101, new Object[] { "forget password - " + e.getMessage() }, e);
          return new ResponseEntity<>(fn.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       Response response = new Response();
@@ -252,31 +226,45 @@ public class UserController
       logger.debug("Update successfull", response);
       return new ResponseEntity<>(response, HttpStatus.OK);
    }
-
+/*
    @GetMapping("/google")
    public Principal user(Principal principal)
    {
       return principal;
    }
-
+*/
    @GetMapping("profile")
-   public ResponseEntity<?> getProfile(@RequestAttribute("id") String loggedInUserId)
+   public ResponseEntity<?> getProfile(@RequestHeader(name="userId") Integer loggedInUserId)
    {
       logger.debug("Getting User profile");
-      User user = null;
-      try {
+      Response response = new Response();
+      UserDTO user = null;
+      try 
+      {
          user = userService.getProfile(loggedInUserId);
-      } catch (FNException e) {
+      } 
+      catch (UserException e) 
+      {
          e.printStackTrace();
          logger.error(e.getMessage());
          return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
-      } catch (Exception e) {
+      } 
+      catch (Exception e) 
+      {
          e.printStackTrace();
          logger.error(e.getMessage());
-         FNException fn = new FNException(101, new Object[] { "forget password - " + e.getMessage() }, e);
+         UserException fn = new UserException(101, new Object[] { "forget password - " + e.getMessage() }, e);
          return new ResponseEntity<>(fn.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      logger.debug("");
-      return new ResponseEntity<User>(user, HttpStatus.OK);
-   }*/
+      response.setStatus(200);
+      response.setResponseMessage(ApplicationConfiguration.getMessageAccessor().getMessage("200"));
+      logger.debug("fetched User profile successfully %s", response);
+      return new ResponseEntity<UserDTO>(user, HttpStatus.OK);
+   }
+   @GetMapping("/test")
+   public String test(@RequestParam String token, @RequestHeader(name="userId") int userId) {
+	   
+	return userId+"";
+	   
+   }
 }

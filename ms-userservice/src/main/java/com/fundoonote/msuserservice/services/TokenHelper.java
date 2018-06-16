@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import com.fundoonote.msuserservice.exception.UserException;
 import com.fundoonote.msuserservice.models.User;
@@ -15,7 +16,7 @@ import com.fundoonote.msuserservice.models.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
+@Component
 public class TokenHelper 
 {
 	@Value("${app.name}")
