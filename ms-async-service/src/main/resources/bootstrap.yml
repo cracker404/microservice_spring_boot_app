@@ -1,0 +1,9 @@
+---
+spring:
+  application:
+    name: ms-async
+  cloud:
+    config:
+      uri: http://localhost:8081
+server:
+  port: 8086
