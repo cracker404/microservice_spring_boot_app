@@ -88,5 +88,9 @@ public class SearchController {
 	public String getById(@RequestHeader String index, @RequestHeader String id) throws FNException {
 		return esService.getById(id, index);
 	}
+	@GetMapping("/")
+	public String send() {
+		return "Hello";
+	}
 	
 }

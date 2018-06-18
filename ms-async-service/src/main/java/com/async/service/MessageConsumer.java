@@ -1,5 +1,8 @@
 package com.async.service;
 
+import java.util.Map;
+
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
@@ -26,26 +29,27 @@ public class MessageConsumer<T> implements MessageListener
 		logger.info("Inside onMessage - fetching Object from activeMQ");
 
 		try {
-			ObjectMessage objectMessage = (ObjectMessage) msg;
-			JmsDto<T> jmsDto = (JmsDto<T>) objectMessage.getObject();
+			MapMessage mapMessage = (MapMessage) msg;
+			Object obj = mapMessage.getObject("object");
 
-			switch (jmsDto.getOperation()) {
-			case SAVE:
-				clientService.save(jmsDto.getObject(), jmsDto.getIndex(), (String)jmsDto.getId());
-				System.out.println(clientService.send());
+			switch (mapMessage.getString("operationType")) {
+			case "SAVE":
+				clientService.save(obj, mapMessage.getString("index"), mapMessage.getString("id"));
+				
 				break;
-			case UPDATE:
+			case "UPDATE":
 				//clientService.update(jmsDto.getObject());
 				break;
-			case DELETE:
+			case "DELETE":
 				//clientService.deleteById((int)jmsDto.getId());
 				break;
 			default:
-				Email email = (Email) jmsDto.getObject();
+				//Email email = (Email) jmsDto.getObject();
 				//clientService.send(email);
 				break;
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			/*try {
 				e.printStackTrace();
 				ObjectMessage objectMessage = (ObjectMessage) msg;

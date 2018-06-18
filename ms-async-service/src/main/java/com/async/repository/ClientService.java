@@ -1,6 +1,7 @@
 package com.async.repository;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,8 @@ import com.async.response.Response;
 @FeignClient(name="MS-SEARCH")
 public interface ClientService 
 {
-	@PostMapping("/save")
+	@PostMapping(value = "/save", consumes=MediaType.APPLICATION_JSON_VALUE)
+	
 	ResponseEntity<Response> save(@RequestBody Object object, @RequestParam("index") String index, 
 			@RequestParam("id") String Id);
 	/*@PutMapping("/update")
