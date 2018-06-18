@@ -2,6 +2,10 @@ package com.bridgelabz.search.services;
 
 import java.util.Locale;
 
+import com.bridgelabz.search.config.ApplicationConfiguration;
+import com.bridgelabz.search.response.ErrorResponse;
+import com.bridgelabz.search.response.Response;
+
 public class FNException extends Exception {
 	private static final long serialVersionUID = 1L;
 
@@ -80,15 +84,18 @@ public class FNException extends Exception {
 		return errorCode;
 	}
 
-	/*
-	 * public Response getErrorResponse() { return
-	 * getErrorResponse(Locale.getDefault()); }
-	 * 
-	 * public Response getErrorResponse(Locale locale) { Response err = new
-	 * ErrorResponse(); err.setStatus(getErrorCode());
-	 * err.setResponseMessage(getDisplayMessage(locale));
-	 * 
-	 * return err; }
-	 */
+	
+	public Response getErrorResponse() {
+		return getErrorResponse(Locale.getDefault());
+	}
+
+	public Response getErrorResponse(Locale locale) {
+		Response err = new ErrorResponse();
+		err.setStatus(getErrorCode());
+		err.setResponseMessage(getDisplayMessage(locale));
+
+		return err;
+	}
+	 
 
 }

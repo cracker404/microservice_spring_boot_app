@@ -17,7 +17,7 @@ public class Jmsconfig
    @Value("${activemq.url}")
    private String url;
 
-   @Value("${activemq.queue}")
+   @Value("${async.queue}")
    private String queue;
    
    @Bean

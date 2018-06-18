@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bridgelabz.search.response.Response;
 import com.bridgelabz.search.services.FNException;
 import com.bridgelabz.search.services.IESService;
 
@@ -47,9 +50,28 @@ public class SearchController {
 		return esService.multipleFieldSearchWithWildcard(text, fields, null, index);
 	}
 	
-	@PostMapping("/add")
-	public String add(@RequestBody Map<String, Object> object, @RequestHeader String index, @RequestHeader String id) throws FNException {
-		return esService.save(object, index, id);
+	@PostMapping("/save")
+	public ResponseEntity<Response> add(@RequestBody Map<String, Object> object, @RequestParam String index, @RequestParam String id) 
+	{
+		System.out.println("inside search service");
+		Response response = new Response();
+		try 
+		{
+			esService.save(object, index, id);
+		} 
+		catch (FNException e) 
+		{
+			return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		catch (Exception e) 
+		{
+			FNException fn = new FNException(101, new Object[] { "User Registration - " + e.getMessage() }, e);
+	         return new ResponseEntity<>(fn.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
+	      }
+	      response = new Response();
+	      response.setStatus(200);
+	      response.setResponseMessage("Registration successfull");
+	      return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	@PutMapping("/update")

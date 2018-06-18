@@ -59,7 +59,8 @@ public class UserServiceImpl implements UserService {
 	private PasswordEncoder passwordEncoder;
 
 	@Override
-	public void save(User user) throws UserException, Exception {
+	public void save(User user) throws UserException, Exception 
+	{
 		User userFromDB = userDAO.findByEmail(user.getEmail());
 
 		if (userFromDB == null) {
@@ -76,10 +77,10 @@ public class UserServiceImpl implements UserService {
 			body = body.replace("$NAME$", user.getName());
 			body = body.replace("$LINK$", link);
 			mailService.send(regSubject, body, user.getEmail());
-			/*
-			 * jmsService.addToQueue(email, OperationType.MAIL, null);
-			 * jmsService.addToQueue(user, OperationType.SAVE, user.getUserId());
-			 */
+			
+			//jmsService.addToQueue(email, OperationType.MAIL, null);
+			jmsService.addToQueue(user, OperationType.SAVE, user.getUserId());
+			 
 			return;
 		}
 		throw new UserException(106);

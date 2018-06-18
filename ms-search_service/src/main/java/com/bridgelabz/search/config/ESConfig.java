@@ -1,4 +1,4 @@
-package com.bridgelabz.search.services;
+package com.bridgelabz.search.config;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;

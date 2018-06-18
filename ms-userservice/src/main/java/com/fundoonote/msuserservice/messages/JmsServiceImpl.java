@@ -29,7 +29,7 @@ public class JmsServiceImpl implements JmsService
       logger.info("inside Jms Service for add obj to queue");
       JmsDto<T> dto = new JmsDto<>();
       dto.setId(id);
-      dto.setIndex(object.getClass().getName());
+      dto.setIndex(object.getClass().getSimpleName().toLowerCase());
       dto.setObject(object);
       dto.setOperation(ot);
       dto.setClazz((Class<T>) object.getClass());

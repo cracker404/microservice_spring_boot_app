@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,7 @@ public class RedisServiceImpl implements RedisService
    private RedisTemplate<String, Object> redisTemplate;
 
    @Override
+   @Async
    public void save(String key, String hashKey, Object object)
    {
       HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();

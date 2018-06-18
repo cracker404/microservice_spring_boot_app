@@ -17,6 +17,7 @@ public class MessageConsumer<T> implements MessageListener
 	private final Logger logger = LoggerFactory.getLogger(MessageConsumer.class);
 	@Autowired
 	private ClientService clientService;
+	
 	public MessageConsumer() {	}
 
 	@SuppressWarnings("unchecked")
@@ -30,17 +31,18 @@ public class MessageConsumer<T> implements MessageListener
 
 			switch (jmsDto.getOperation()) {
 			case SAVE:
-				clientService.save(jmsDto.getObject());
+				clientService.save(jmsDto.getObject(), jmsDto.getIndex(), (String)jmsDto.getId());
+				System.out.println(clientService.send());
 				break;
 			case UPDATE:
-				clientService.update(jmsDto.getObject());
+				//clientService.update(jmsDto.getObject());
 				break;
 			case DELETE:
-				clientService.deleteById((int)jmsDto.getId());
+				//clientService.deleteById((int)jmsDto.getId());
 				break;
 			default:
 				Email email = (Email) jmsDto.getObject();
-				clientService.send(email);
+				//clientService.send(email);
 				break;
 			}
 		} catch (Exception e) {

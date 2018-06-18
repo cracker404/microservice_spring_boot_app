@@ -55,7 +55,8 @@ public class JmsDto<T> implements Serializable {
 
 	@Override
 	public String toString() {
-		return "JmsDto [object=" + object + ", operation=" + operation + "]";
+		return "JmsDto [id=" + id + ", object=" + object + ", operation=" + operation + ", clazz=" + clazz + ", index="
+				+ index + "]";
 	}
 
 }
