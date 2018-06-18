@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fundoonote.msnoteservice.exception.NSException;
+import com.fundoonote.msnoteservice.model.Collaboration;
 import com.fundoonote.msnoteservice.model.Label;
 import com.fundoonote.msnoteservice.model.Note;
 import com.fundoonote.msnoteservice.model.NoteDto;
@@ -27,11 +28,11 @@ public interface INoteService {
 
 	void renameLabel(Label label, String loggedInUserId);
 
-	List<Label> getLabels();
+	List<Label> getLabels(String userId);
 
 	void deleteLabel(int labelId);
 
-	void addRemoveLabel(long noteId, int labelId);
+	void addLabel(long noteId, int labelId);
 
 	void saveLabelFromNote(Label label, long noteId, String loggedInUserId);
 
@@ -39,15 +40,15 @@ public interface INoteService {
 
 	void deleteImage(int userId, long noteId, String key);
 
-	void collaborat(String sharingUserEmail, long noteId, String loggedInUserEmail);
+	void collaborate(String sharingUserEmail, long noteId, String loggedInUserEmail);
 
-	void removeCollaboratUser();
+	void removeCollaborator(String sharedUserId, long noteId);
+	
+	void pinOrUnpin(long notePrefId, boolean isPinned, String loggedInUserId);
 
-	void pinOrUnpin(int notePrefId, boolean isPinned, String loggedInUserId);
+	void archiveOrUnarchive(long notePrefId, Status status, String loggedInUserId);
 
-	void archiveOrUnarchive(int notePrefId, Status status, String loggedInUserId);
-
-	void trashOrRestore(int notePrefId, Status status, String loggedInUserId);
+	void trashOrRestore(long notePrefId, Status status, String loggedInUserId);
 
 
 }

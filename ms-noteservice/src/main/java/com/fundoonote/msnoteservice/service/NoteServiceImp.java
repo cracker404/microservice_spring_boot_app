@@ -12,7 +12,6 @@ import com.fundoonote.msnoteservice.dao.ICollaboratorDao;
 import com.fundoonote.msnoteservice.dao.ILabeDao;
 import com.fundoonote.msnoteservice.dao.INoteDao;
 import com.fundoonote.msnoteservice.dao.INotePrefDao;
-import com.fundoonote.msnoteservice.dao.IUserDao;
 import com.fundoonote.msnoteservice.exception.NSException;
 import com.fundoonote.msnoteservice.model.Collaboration;
 import com.fundoonote.msnoteservice.model.Label;
@@ -20,7 +19,6 @@ import com.fundoonote.msnoteservice.model.Note;
 import com.fundoonote.msnoteservice.model.NoteDto;
 import com.fundoonote.msnoteservice.model.NotePreferences;
 import com.fundoonote.msnoteservice.model.Status;
-import com.fundoonote.msnoteservice.model.User;
 import com.fundoonote.msnoteservice.utility.OperationType;
 import com.fundoonote.msnoteservice.utility.S3Service;
 import com.fundoonote.msnoteservice.utility.messagesservice.IJmsService;
@@ -40,8 +38,8 @@ public class NoteServiceImp implements INoteService {
 	@Autowired
 	INotePrefDao notePrefDao;
 
-	@Autowired
-	IUserDao userDao;
+	/*@Autowired
+	IUserDao userDao;*/
 
 	@Autowired
 	ICollaboratorDao collaboratorDao;
@@ -97,7 +95,7 @@ public class NoteServiceImp implements INoteService {
 		List<NotePreferences> notePreferences = notePrefDao.getAllNotePreferenceByUserId(loggedInUser);
 		List<NoteDto> result = notePreferences.stream().map(temp -> {
 			NoteDto noteDto = new NoteDto();
-			noteDto.setNote(temp.getNote());
+			//noteDto.setNote(temp.getNote());
 			noteDto.setNotePreferences(temp);
 			return noteDto;
 		}).collect(Collectors.toList());
@@ -120,21 +118,22 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public List<Label> getLabels() {
-		return null;
+	public List<Label> getLabels(String userId) {
+		List<Label> labels = labelDao.getAllLabelsByUserId(userId);
+		return labels;
 	}
 
 	@Override
 	public void deleteLabel(int labelId) {
-
 		labelDao.deleteById(labelId);
 	}
 
 	@Override
-	public void addRemoveLabel(long noteId, int labelId) {
+	public void addLabel(long noteId, int labelId) {
 
 		Note note = noteDao.getOne(noteId);
 		Label label = labelDao.getOne(labelId);
+		//notePreference.
 	}
 
 	@Override
@@ -148,6 +147,7 @@ public class NoteServiceImp implements INoteService {
 		Note note = noteDao.getOne(noteId);
 		s3Service.deleteFileFromS3(key);
 		note.setImageUrl(null);
+		noteDao.save(note);
 	}
 
 	@Override
@@ -160,25 +160,28 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void collaborat(String sharingUserEmail, long noteId, String loggedInUserEmail) {
+	public void collaborate(String sharingUserEmail, long noteId, String loggedInUserEmail) {
 
 		Collaboration collaboration = new Collaboration();
 		Note note = noteDao.getOne(noteId);
-		User loggedInUser = userDao.findByEmail(loggedInUserEmail);
-		User sharedUser = userDao.findByEmail(sharingUserEmail);
+		//User sharedUser = userDao.findByEmail(sharingUserEmail);
 
 		collaboration.setNote(note);
-		collaboration.setShared_By_UserId(sharedUser.getUserId());
-		collaboration.setShared_UserId(loggedInUser.getUserId());
+		collaboration.setSharedById(loggedInUserEmail);
+		collaboration.setSharedId(sharingUserEmail);
+		collaboratorDao.save(collaboration);
 	}
 
 	@Override
-	public void removeCollaboratUser() {
+	public void removeCollaborator(String sharedUserId, long noteId) {
+		Note note = new Note();
+		note.setNoteId(noteId);
+		collaboratorDao.deleteByNoteAndSharedId(note, sharedUserId);
 
 	}
-
+	
 	@Override
-	public void trashOrRestore(int notePrefId, Status status, String loggedInUserId) {
+	public void trashOrRestore(long notePrefId, Status status, String loggedInUserId) {
 
 		NotePreferences notePref = notePrefDao.getOne(notePrefId);
 		notePref.setStatus(status);
@@ -188,7 +191,7 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void pinOrUnpin(int notePrefId, boolean isPinned, String loggedInUserId) {
+	public void pinOrUnpin(long notePrefId, boolean isPinned, String loggedInUserId) {
 
 		NotePreferences notePref = notePrefDao.getOne(notePrefId);
 		notePref.setPin(isPinned);
@@ -197,7 +200,7 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void archiveOrUnarchive(int notePrefId, Status status, String loggedInUserId) {
+	public void archiveOrUnarchive(long notePrefId, Status status, String loggedInUserId) {
 
 		NotePreferences notePref = notePrefDao.getOne(notePrefId);
 		notePref.setStatus(status);
@@ -205,5 +208,7 @@ public class NoteServiceImp implements INoteService {
 		notePrefDao.save(notePref);
 
 	}
+
+
 
 }

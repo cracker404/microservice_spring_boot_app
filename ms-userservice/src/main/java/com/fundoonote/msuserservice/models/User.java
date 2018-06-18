@@ -27,6 +27,8 @@ public class User implements Serializable {
 	private String password;
 	
 	private String role = "USER";
+	
+	private boolean isActivated = false;
 
 	public long getId() {
 		return id;
@@ -76,4 +78,11 @@ public class User implements Serializable {
 		this.role = role;
 	}
 
+	public boolean isActivated() {
+		return isActivated;
+	}
+
+	public void setActivated(boolean isActivated) {
+		this.isActivated = isActivated;
+	}
 }

@@ -65,6 +65,7 @@ public class NotePreferences implements Serializable {
 	public void setPin(boolean isPin) {
 		this.isPin = isPin;
 	}
+	
 	public String getColor() {
 		return color;
 	}
@@ -77,12 +78,12 @@ public class NotePreferences implements Serializable {
 	public void setRemainder(Date remainder) {
 		this.remainder = remainder;
 	}
-	/*public Set<Label> getLabels() {
+	public Set<Label> getLabels() {
 		return labels;
 	}
 	public void setLabels(Set<Label> labels) {
 		this.labels = labels;
-	}*/
+	}
 	public Note getNote() {
 		return note;
 	}
@@ -95,4 +96,6 @@ public class NotePreferences implements Serializable {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
+	
+	
 }

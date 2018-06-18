@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.fundoonote.msnoteservice.model.NotePreferences;
 
 @Repository
-public interface INotePrefDao extends JpaRepository<NotePreferences, Integer> {
+public interface INotePrefDao extends JpaRepository<NotePreferences, Long> {
 
 	NotePreferences findByUserId(String loggedInUser);
 	
