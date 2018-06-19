@@ -8,7 +8,7 @@ public class NoteDto {
 	
 	Note note;
 	MultipartFile image;
-	Set<Integer> CollaboratorId;
+	Set<String> CollaboratorId;
 	NotePreferences notePreferences;
 	public Note getNote() {
 		return note;
@@ -22,10 +22,10 @@ public class NoteDto {
 	public void setImage(MultipartFile image) {
 		this.image = image;
 	}
-	public Set<Integer> getCollaboratorId() {
+	public Set<String> getCollaboratorId() {
 		return CollaboratorId;
 	}
-	public void setCollaboratorId(Set<Integer> collaboratorId) {
+	public void setCollaboratorId(Set<String> collaboratorId) {
 		CollaboratorId = collaboratorId;
 	}
 	public NotePreferences getNotePreferences() {

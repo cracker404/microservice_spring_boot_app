@@ -18,21 +18,21 @@ public interface INoteService {
 
 	void updateNote(Note note, String userId) throws NSException;
 
-	void updatenotePref(NotePreferences notePref);
+	void updatenotePref(NotePreferences notePref, String loggedInUserId) throws NSException;
 
-	void deleteNote(long noteId) throws NSException;
+	void deleteNote(long noteId, String loggedInUser) throws NSException;
 
 	List<NoteDto> getNotes(String loggedInUser);
 
-	void saveLabel(Label label, String loggedInUserId);
+	void saveLabel(Label label, String loggedInUserId) throws NSException;
 
-	void renameLabel(Label label, String loggedInUserId);
+	void renameLabel(Label label, String loggedInUserId) throws NSException;
 
 	List<Label> getLabels(String userId);
 
-	void deleteLabel(int labelId);
+	void deleteLabel(int labelId, String loggedInUserId) throws NSException;
 
-	void addLabel(long noteId, int labelId);
+	void addLabelToNote(long noteId, int labelId, String loggedInUserId);
 
 	void saveLabelFromNote(Label label, long noteId, String loggedInUserId);
 
@@ -42,13 +42,13 @@ public interface INoteService {
 
 	void collaborate(String sharingUserEmail, long noteId, String loggedInUserEmail);
 
-	void removeCollaborator(String sharedUserId, long noteId);
+	void removeCollaborator(String sharedUserId, long noteId, String loggedInUserId) throws NSException;
 	
-	void pinOrUnpin(long notePrefId, boolean isPinned, String loggedInUserId);
+	void pinOrUnpin(long notePrefId, boolean isPinned, String loggedInUserId) throws NSException;
 
-	void archiveOrUnarchive(long notePrefId, Status status, String loggedInUserId);
+	void archiveOrUnarchive(long notePrefId, Status status, String loggedInUserId) throws NSException;
 
-	void trashOrRestore(long notePrefId, Status status, String loggedInUserId);
+	void trashOrRestore(long notePrefId, Status status, String loggedInUserId) throws NSException;
 
 
 }

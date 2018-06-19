@@ -1,6 +1,8 @@
 package com.fundoonote.msnoteservice.dao;
 
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
@@ -15,6 +17,8 @@ public interface ICollaboratorDao extends JpaRepository<Collaboration, Long> {
 	@Transactional
 	@Modifying
 	void deleteByNoteAndSharedId(Note note, String sharedId);
+
+	List<Collaboration> getByNote(Note noteId);
 
 
 }

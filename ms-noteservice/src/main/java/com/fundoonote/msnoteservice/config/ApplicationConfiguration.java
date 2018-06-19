@@ -42,7 +42,7 @@ public class ApplicationConfiguration {
 	   private void initMessageSourceAccessor()
 	   {
 	      ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-	      messageSource.setBasename("classpath:messages/errormessages");
+	      messageSource.setBasename("classpath:messages/errormessage");
 	      messageSourceAccessor = new MessageSourceAccessor(messageSource, Locale.getDefault());
 
 	   }

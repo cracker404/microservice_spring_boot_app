@@ -48,8 +48,9 @@ public class Note implements Serializable{
 	@Column
 	private String shareByUserId;
 	
-	/*@OneToMany(mappedBy = "note")
-	private Set<NotePreferences> notePreferences;*/
+	@OneToMany(mappedBy = "note")
+	@JsonIgnore
+	private Set<NotePreferences> notePreferences;
 	
 	@OneToMany(mappedBy="note")
 	private Set<Collaboration> collaborations;
