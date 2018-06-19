@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
+import com.bridgelabz.search.exception.FNException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service

@@ -34,11 +34,5 @@ public interface ClientService
 	
 	@GetMapping("/")
 	String send();
-
 }
-/*static class HystrixClientFallback implements HystrixClient {
-    @Override
-    public Hello iFailSometimes() {
-        return new Hello("fallback");
-    }
-}*/
+

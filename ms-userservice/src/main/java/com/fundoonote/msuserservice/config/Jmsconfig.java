@@ -21,6 +21,9 @@ public class Jmsconfig
    @Value("${async.queue}")
    private String queue;
    
+   public Jmsconfig() {
+	   System.out.println("Create "+getClass().getName());
+}
    @Bean
    public CachingConnectionFactory cachingConnectionFactory()
    {

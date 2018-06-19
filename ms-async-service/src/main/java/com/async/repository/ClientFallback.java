@@ -2,7 +2,6 @@ package com.async.repository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.async.response.Response;
@@ -20,13 +19,13 @@ public class ClientFallback implements ClientService {
 	@Override
 	public ResponseEntity<Response> save(Object object, String index, String Id) {
 		logger.error(throwable.getMessage());
-		return new ResponseEntity<Response>(new Response(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return null;
 	}
 
 	@Override
 	public ResponseEntity<Response> update(Object object, String index, String Id) {
 		logger.error(throwable.getMessage());
-		return new ResponseEntity<Response>(new Response(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return null;
 	}
 
 	@Override

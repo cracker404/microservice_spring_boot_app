@@ -1,8 +1,10 @@
 package com.async.service;
 
-import javax.jms.MapMessage;
+import java.util.HashMap;
+
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +20,37 @@ public class MessageConsumer<T> implements MessageListener
 	
 	public MessageConsumer() {	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onMessage(Message msg) {
 		logger.info("Inside onMessage - fetching Object from activeMQ");
 
 		try {
-			MapMessage mapMessage = (MapMessage) msg;
-			Object obj = mapMessage.getObject("object");
-
-			switch (mapMessage.getString("operationType")) {
+			ObjectMessage objectMessage = (ObjectMessage) msg;
+			HashMap<String, Object> map = (HashMap<String, Object>) objectMessage.getObject();
+			String operation = (String) map.get("operationType");
+			Object object = null;
+			if(operation.equals("SAVE") || operation.equals("UPDATE")) {
+				object = map.get("Object");
+			}
+			String index = (String) map.get("index");
+			Integer id =  (Integer) map.get("id");
+			switch (operation) {
+			case "SAVE":
+				clientService.save(object, index, String.valueOf(id));
+				break;
+			case "UPDATE":
+				clientService.update(object, index,  String.valueOf(id));
+				break;
+			case "DELETE":
+				clientService.deleteById(index,  String.valueOf(id));
+				break;
+			default:
+				//Email email = (Email) jmsDto.getObject();
+				//clientService.send(email);
+				break;
+			}
+			/*switch (mapMessage.getString("operationType")) {
 			case "SAVE":
 				clientService.save(obj, mapMessage.getString("index"), mapMessage.getString("id"));
 				break;
@@ -40,7 +64,7 @@ public class MessageConsumer<T> implements MessageListener
 				//Email email = (Email) jmsDto.getObject();
 				//clientService.send(email);
 				break;
-			}
+			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 			/*try {

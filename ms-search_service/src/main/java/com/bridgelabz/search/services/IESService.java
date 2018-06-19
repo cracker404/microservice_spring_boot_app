@@ -3,7 +3,7 @@ package com.bridgelabz.search.services;
 import java.util.List;
 import java.util.Map;
 
-import com.bridgelabz.search.services.FNException;
+import com.bridgelabz.search.exception.FNException;
 
 public interface IESService {
 	<T> String save(T object, String index, String id) throws FNException;

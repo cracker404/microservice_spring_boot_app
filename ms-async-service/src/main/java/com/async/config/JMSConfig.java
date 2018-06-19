@@ -22,6 +22,10 @@ public class JMSConfig
 	@Value("${async.queue}")
 	private String queue;
 
+	public JMSConfig() {
+		System.out.println("Create "+getClass().getName());
+	}
+	
 	@Bean
 	public CachingConnectionFactory cachingConnectionFactory() 
 	{

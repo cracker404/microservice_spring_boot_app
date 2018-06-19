@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bridgelabz.search.exception.FNException;
 import com.bridgelabz.search.response.Response;
-import com.bridgelabz.search.services.FNException;
 import com.bridgelabz.search.services.IESService;
 
 @RestController

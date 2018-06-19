@@ -1,4 +1,4 @@
-package com.bridgelabz.search.services;
+package com.bridgelabz.search.exception;
 
 import java.util.Locale;
 

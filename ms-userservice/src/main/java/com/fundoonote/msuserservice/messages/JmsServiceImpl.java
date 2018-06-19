@@ -1,7 +1,8 @@
 package com.fundoonote.msuserservice.messages;
 
+import java.util.HashMap;
+
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.Session;
 
@@ -32,31 +33,20 @@ public class JmsServiceImpl implements JmsService
    {
       logger.info("inside Jms Service for add obj to queue");
      
-     /* Map<String, Object> map = new LinkedHashMap<>();
-      map.put("Object", json);
-      map.put("operationType", ot.toString());
-      map.put("index", object.getClass().getSimpleName().toLowerCase());
-      map.put("id", id);*/
-      /*JmsDto<T> dto = new JmsDto<>();
-      dto.setId(id);
-      dto.setIndex(object.getClass().getSimpleName().toLowerCase());
-      dto.setObject(object);
-      dto.setOperation(ot);
-      dto.setClazz((Class<T>) object.getClass());*/
-
+      HashMap<String, Object> map = new HashMap<>();
+     
       try 
       {
     	  String json = mapper.writeValueAsString(object);
+          map.put("Object", json);
+          map.put("operationType", ot.toString());
+          map.put("index", object.getClass().getSimpleName().toLowerCase());
+          map.put("id", id);
           jmsTemplate.send(new MessageCreator() {
             @Override
             public Message createMessage(Session session) throws JMSException
             {
-               MapMessage map = session.createMapMessage();
-               map.setObject("object", json);
-               map.setString("operationType", ot.toString());
-               map.setString("index", object.getClass().getSimpleName().toLowerCase());
-               map.setString("id", id.toString());
-               return map;
+            	return session.createObjectMessage(map);
             }
          });
       } catch (Exception e) {
