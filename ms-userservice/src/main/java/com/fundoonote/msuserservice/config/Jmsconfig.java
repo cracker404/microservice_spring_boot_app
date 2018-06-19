@@ -1,6 +1,7 @@
 package com.fundoonote.msuserservice.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import javax.jms.Queue;
@@ -11,7 +12,7 @@ import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 @Configuration
-//@ConditionalOnExpression("'${mode}'.equals('development')")
+@ConditionalOnExpression("'${mode}'.equals('development')")
 public class Jmsconfig
 {
    @Value("${activemq.url}")

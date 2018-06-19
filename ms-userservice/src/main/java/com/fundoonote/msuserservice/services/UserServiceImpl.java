@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
 			String token = tokenHelper.generateToken(user);
 			if (!baseUrl.endsWith("/"))
 				baseUrl.concat("/");
-			String link = baseUrl.concat("user/active/" + token);
+			String link = baseUrl.concat("user/activate/" + token);
 			String body = getBodyFromFile(regFilePath);
 			body = body.replace("$NAME$", user.getName());
 			body = body.replace("$LINK$", link);
@@ -80,13 +80,13 @@ public class UserServiceImpl implements UserService {
 			
 			//jmsService.addToQueue(email, OperationType.MAIL, null);
 			jmsService.addToQueue(user, OperationType.SAVE, user.getUserId());
-			 
 			return;
 		}
 		throw new UserException(106);
 	}
 
-	private String getBodyFromFile(String filePath) throws IOException {
+	private String getBodyFromFile(String filePath) throws IOException 
+	{
 		File file = ResourceUtils.getFile(filePath);
 		/*
 		 * ClassLoader classLoader = getClass().getClassLoader(); File file = new
@@ -96,7 +96,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void activation(String token) throws UserException {
+	public void activation(String token) throws UserException 
+	{
 		Map<String, Object> map = tokenHelper.validateToken(token);
 		int userId = (int) map.get("id");
 		Optional<User> optional = userDAO.findById(userId);

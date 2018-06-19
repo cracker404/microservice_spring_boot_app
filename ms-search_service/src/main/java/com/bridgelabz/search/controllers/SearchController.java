@@ -24,7 +24,7 @@ import com.bridgelabz.search.services.IESService;
 public class SearchController {
 
 	@Autowired
-	IESService esService;
+	private IESService esService;
 
 	@GetMapping("/notes/search")
 	public List<String> searchNotes(@RequestHeader String text, @RequestHeader String index, @RequestParam String userid)
@@ -53,7 +53,6 @@ public class SearchController {
 	@PostMapping("/save")
 	public ResponseEntity<Response> add(@RequestBody Map<String, Object> object, @RequestParam String index, @RequestParam String id) 
 	{
-		System.out.println("inside search service");
 		Response response = new Response();
 		try 
 		{
@@ -75,22 +74,33 @@ public class SearchController {
 	}
 	
 	@PutMapping("/update")
-	public String update(@RequestBody Map<String, Object> object, @RequestHeader String index, @RequestHeader String id) throws FNException {
-		return esService.update(object, index, id);
+	public ResponseEntity<Response> update(@RequestBody Map<String, Object> object, @RequestParam String index, @RequestParam String id) 
+	{
+		Response response = new Response();	
+		try {
+			esService.update(object, index, id);
+		} 
+		catch (FNException e) {
+			return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
+		} 
+		catch (Exception e) 
+		{
+			FNException fn = new FNException(101, new Object[] { "User Registration - " + e.getMessage() }, e);
+			return new ResponseEntity<>(fn.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		response = new Response();
+		response.setStatus(200);
+		response.setResponseMessage("Registration successfull");
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/delete")
-	public boolean remove(@RequestHeader String index, @RequestHeader String id) throws FNException {
+	public Boolean remove(@RequestParam String index, @RequestParam String id) throws FNException {
 		return esService.deleteById(id, index);
 	}
 	
 	@GetMapping("/get")
-	public String getById(@RequestHeader String index, @RequestHeader String id) throws FNException {
+	public String getById(@RequestParam String index, @RequestParam String id) throws FNException {
 		return esService.getById(id, index);
 	}
-	@GetMapping("/")
-	public String send() {
-		return "Hello";
-	}
-	
 }

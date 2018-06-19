@@ -56,7 +56,7 @@ public class UserController
    @Autowired
    private UserService userService;
 
-   @Value("${redirect.url}")
+   @Value("${redirect.login.url}")
    private String redirectUrl;
   
 
@@ -161,8 +161,7 @@ public class UserController
       logger.debug("Image uploaded successfull", response);
       return new ResponseEntity<Response>(response, HttpStatus.OK);
    }
-
-   @PostMapping("forgotpassword")
+   @PostMapping("/forgotpassword")
    public ResponseEntity<Response> forgetPassword(@RequestParam String email)
    {
       Response response = new Response();
@@ -206,7 +205,8 @@ public class UserController
    }
 
    @PostMapping("changepassword/{token:.+}")
-   public ResponseEntity<Response> changePassword(@PathVariable("token") String token, String newPassword)
+   public ResponseEntity<Response> changePassword(@PathVariable("token") String token, 
+		   @RequestParam("newPassword")String newPassword)
    {
       try {
          userService.changePassword(token, newPassword);
@@ -262,9 +262,9 @@ public class UserController
       return new ResponseEntity<UserDTO>(user, HttpStatus.OK);
    }
    @GetMapping("/test")
-   public String test(@RequestParam String token, @RequestHeader(name="userId") int userId) {
+   public String test(@RequestParam("word") String word) {
 	   
-	return userId+"";
+	return word;
 	   
    }
 }

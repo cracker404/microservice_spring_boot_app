@@ -1,6 +1,5 @@
 package com.fundoonote.msuserservice.messages;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fundoonote.msuserservice.exception.UserException;
 import com.fundoonote.msuserservice.models.OperationType;
 

@@ -1,18 +1,13 @@
 package com.async.service;
 
-import java.util.Map;
-
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.async.model.Email;
-import com.async.model.JmsDto;
 import com.async.repository.ClientService;
 
 public class MessageConsumer<T> implements MessageListener
@@ -23,7 +18,6 @@ public class MessageConsumer<T> implements MessageListener
 	
 	public MessageConsumer() {	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onMessage(Message msg) {
 		logger.info("Inside onMessage - fetching Object from activeMQ");
@@ -35,13 +29,12 @@ public class MessageConsumer<T> implements MessageListener
 			switch (mapMessage.getString("operationType")) {
 			case "SAVE":
 				clientService.save(obj, mapMessage.getString("index"), mapMessage.getString("id"));
-				
 				break;
 			case "UPDATE":
-				//clientService.update(jmsDto.getObject());
+				clientService.update(obj, mapMessage.getString("index"), mapMessage.getString("id"));
 				break;
 			case "DELETE":
-				//clientService.deleteById((int)jmsDto.getId());
+				clientService.deleteById(mapMessage.getString("index"), mapMessage.getString("id"));
 				break;
 			default:
 				//Email email = (Email) jmsDto.getObject();

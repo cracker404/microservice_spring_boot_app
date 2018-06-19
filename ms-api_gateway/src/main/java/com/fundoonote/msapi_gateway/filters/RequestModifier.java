@@ -1,7 +1,11 @@
 package com.fundoonote.msapi_gateway.filters;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -21,12 +25,22 @@ import com.netflix.zuul.exception.ZuulException;
 public class RequestModifier extends ZuulFilter {
 	@Autowired
 	private RedisService redisService;
-
+	
+	List<String> ignoreUrls = new ArrayList<>();
 	private static Logger log = LoggerFactory.getLogger(RequestModifier.class);
-
+	@PostConstruct
+	public void init(){
+		ignoreUrls = Arrays.asList("activate", "oauth/token", "user/save", 
+				"forgotpassword", "resetpassword", "changepassword");
+	}
 	@Override
-	public boolean shouldFilter() {
-		return true;
+	public boolean shouldFilter() 
+	{
+		RequestContext context = RequestContext.getCurrentContext();
+		HttpServletRequest request = context.getRequest();
+		
+		boolean match =  ignoreUrls.stream().noneMatch(s -> request.getRequestURI().contains(s));
+		return match;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -44,9 +58,9 @@ public class RequestModifier extends ZuulFilter {
 		/*if (params == null) {
 			params = new HashMap<>();
 		}*/
-		if (!request.getRequestURI().contains("login") && !request.getRequestURI().contains("save") 
-				&& !request.getRequestURI().contains("oauth/token")) 
-		{
+		/*if (!request.getRequestURI().contains("activate") && !request.getRequestURI().contains("save") 
+				&& !request.getRequestURI().contains("oauth/token")&& !request.getRequestURI().contains("forgotpassword")) 
+		{*/
 			try
 			{
 				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -81,7 +95,7 @@ public class RequestModifier extends ZuulFilter {
 			{
 				return sendUnauthorized(context);
 			}
-		}
+		//}
 		return null;
 	}
 
@@ -92,7 +106,7 @@ public class RequestModifier extends ZuulFilter {
 
 	@Override
 	public int filterOrder() {
-		return 0;
+		return 10;
 	}
 	
 	private Object sendUnauthorized(RequestContext context) {

@@ -1,12 +1,10 @@
-package com.async.config;
-
-import javax.jms.MessageListener;
+package com.fundoonote.msuserservice.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.springframework.jms.core.JmsTemplate;
 
 import com.amazon.sqs.javamessaging.ProviderConfiguration;
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
@@ -18,13 +16,11 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.async.service.MessageConsumer;
 
 @Configuration
 @ConditionalOnExpression("'${mode}'.equals('production')")
 public class JMSSQSConfig
 {
-   
    @Value("${sqs.endpoint}")
    private String endpoint;
 
@@ -56,7 +52,7 @@ public class JMSSQSConfig
                                    .withRegion(region).build();
    }
    
-   @Bean
+   /*@Bean
    public <T> MessageListener msgListener()
    {
       return new MessageConsumer<T>();
@@ -70,8 +66,8 @@ public class JMSSQSConfig
       dmlc.setMessageListener(msgListener());
       
       return dmlc;
-   }
-   /*@Bean
+   }*/
+   @Bean
    public JmsTemplate createJMSTemplate() 
    {
       JmsTemplate jmsTemplate = new JmsTemplate(getSQSFactory());
@@ -79,7 +75,7 @@ public class JMSSQSConfig
       jmsTemplate.setDeliveryPersistent(false);
       
       return jmsTemplate;
-   }*/
+   }
    private SQSConnectionFactory getSQSFactory() 
    {
       AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(

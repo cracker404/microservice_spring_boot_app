@@ -72,6 +72,7 @@ public class S3Service
          
       } 
       catch (SdkClientException | IOException e) {
+    	  e.printStackTrace();
          throw new UserException(108, new Object[]{"image uploading - "+e.getMessage()}, e);
       }
       String imageUrl = s3ImageUrl+s3BucketName+"/"+key;

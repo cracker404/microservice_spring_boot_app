@@ -10,21 +10,27 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.async.model.Email;
 import com.async.response.Response;
 
 @FeignClient(name="MS-SEARCH")
 public interface ClientService 
 {
-	@PostMapping(value = "/save", consumes=MediaType.APPLICATION_JSON_VALUE)
-	
+	@PostMapping(value = "/save", 
+			consumes=MediaType.APPLICATION_JSON_VALUE,
+			produces =MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Response> save(@RequestBody Object object, @RequestParam("index") String index, 
 			@RequestParam("id") String Id);
-	/*@PutMapping("/update")
-	void update(Object object);
 	
-	@DeleteMapping("/delete")
-	void deleteById(int id);*/
+	@PutMapping(value = "/update",
+			consumes=MediaType.APPLICATION_JSON_VALUE,
+			produces =MediaType.APPLICATION_JSON_VALUE )
+	ResponseEntity<Response> update(@RequestBody Object object, @RequestParam("index") String index, 
+			@RequestParam("id") String Id);
+	
+	@DeleteMapping(value = "/delete",
+			consumes=MediaType.APPLICATION_JSON_VALUE,
+			produces =MediaType.APPLICATION_JSON_VALUE )
+	Boolean deleteById(@RequestParam("index") String index, @RequestParam("id") String Id);
 	
 	@GetMapping("/")
 	String send();

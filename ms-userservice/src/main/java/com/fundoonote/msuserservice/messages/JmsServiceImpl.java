@@ -1,8 +1,5 @@
 package com.fundoonote.msuserservice.messages;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -15,7 +12,6 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fundoonote.msuserservice.exception.UserException;
 import com.fundoonote.msuserservice.models.OperationType;
@@ -31,7 +27,6 @@ public class JmsServiceImpl implements JmsService
 
    private final Logger logger = LoggerFactory.getLogger(JmsServiceImpl.class);
 
-   @SuppressWarnings("unchecked")
    @Override
    public <T> void addToQueue(T object, OperationType ot, Object id) throws UserException
    {
@@ -49,9 +44,10 @@ public class JmsServiceImpl implements JmsService
       dto.setOperation(ot);
       dto.setClazz((Class<T>) object.getClass());*/
 
-      try {
+      try 
+      {
     	  String json = mapper.writeValueAsString(object);
-         jmsTemplate.send(new MessageCreator() {
+          jmsTemplate.send(new MessageCreator() {
             @Override
             public Message createMessage(Session session) throws JMSException
             {
