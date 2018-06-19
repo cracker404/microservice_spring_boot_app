@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.async.response.Response;
 
-@FeignClient(name="MS-SEARCH")
+@FeignClient(name="MS-SEARCH", fallbackFactory=ClientFallbackFactory.class)
 public interface ClientService 
 {
 	@PostMapping(value = "/save", 
