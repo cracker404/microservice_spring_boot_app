@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Configuration
 public class ApplicationConfiguration {
 
-	@Value("${aws.s3.access.key}")
+	   @Value("${aws.s3.access.key}")
 	   private String s3Access;
 
 	   @Value("${aws.s3.secret.key}")
@@ -42,7 +42,7 @@ public class ApplicationConfiguration {
 	   private void initMessageSourceAccessor()
 	   {
 	      ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-	      messageSource.setBasename("classpath:messages/errormessages");
+	      messageSource.setBasename("classpath:messages/errormessage");
 	      messageSourceAccessor = new MessageSourceAccessor(messageSource, Locale.getDefault());
 
 	   }
