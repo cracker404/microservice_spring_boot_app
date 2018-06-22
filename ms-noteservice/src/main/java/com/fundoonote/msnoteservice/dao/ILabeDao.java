@@ -10,15 +10,17 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fundoonote.msnoteservice.model.Label;
+import com.fundoonote.msnoteservice.model.Note;
+import com.fundoonote.msnoteservice.model.NotePreferences;
 
 @Repository
 public interface ILabeDao extends JpaRepository<Label, Integer> {
 
 	@Query(value = "SELECT nf FROM Label nf WHERE nf.userId = :userId")
-	List<Label> getAllLabelsByUserId(@Param("userId") String userId);
+	List<Label> getAllLabelsByUserId(@Param("userId") Integer userId);
 
-	//@Transactional
-	//@Modifying
 	@Query("SELECT l FROM Label l WHERE l.name = :name and l.userId=:userId")
-	Label findByNameAndUserId(@Param("name")String name, @Param("userId") String userId);
+	Label findByNameAndUserId(@Param("name")String name, @Param("userId") Integer loggedInUserId);
+
+
 }

@@ -2,6 +2,7 @@ package com.fundoonote.msnoteservice.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -36,16 +37,16 @@ public class NotePreferences implements Serializable {
 	@Column
 	private Date remainder;
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name ="NoteLabel", joinColumns=@JoinColumn(name="noteId"), inverseJoinColumns=@JoinColumn(name="labelId"))
-	private Set<Label> labels;
+	private Set<Label> labels = new HashSet<Label>();
 	
 	@ManyToOne
 	@JoinColumn(name="noteId")
 	private Note note;
 	
 	@Column
-	private String userId;
+	private Integer userId;
 	
 	public long getNotePreId() {
 		return notePreId;
@@ -90,12 +91,10 @@ public class NotePreferences implements Serializable {
 	public void setNote(Note note) {
 		this.note = note;
 	}
-	public String getUserId() {
+	public Integer getUserId() {
 		return userId;
 	}
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserId(Integer userId2) {
+		this.userId = userId2;
 	}
-	
-	
 }

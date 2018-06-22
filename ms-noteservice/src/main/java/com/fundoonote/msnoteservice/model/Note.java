@@ -43,7 +43,7 @@ public class Note implements Serializable{
 	private String imageUrl;
 	
 	@Column
-	private String userId;
+	private Integer userId;
 	
 	@Column
 	private String shareByUserId;
@@ -91,11 +91,11 @@ public class Note implements Serializable{
 	public void setImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
 	}
-	public String getUserId() {
+	public Integer getUserId() {
 		return userId;
 	}
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserId(Integer userId2) {
+		this.userId = userId2;
 	}
 	public String getShareByUserId() {
 		return shareByUserId;

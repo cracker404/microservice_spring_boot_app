@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fundoonote.msnoteservice.exception.NSException;
-import com.fundoonote.msnoteservice.model.Collaboration;
 import com.fundoonote.msnoteservice.model.Label;
 import com.fundoonote.msnoteservice.model.Note;
 import com.fundoonote.msnoteservice.model.NoteDto;
@@ -14,41 +13,41 @@ import com.fundoonote.msnoteservice.model.Status;
 
 public interface INoteService {
 
-	void saveNote(NoteDto noteDto, String userId) throws NSException;
+	void saveNote(NoteDto noteDto, Integer loggedInUserId) throws NSException;
 
-	void updateNote(Note note, String userId) throws NSException;
+	void updateNote(Note note, Integer loggedInUserId) throws NSException;
 
-	void updatenotePref(NotePreferences notePref, String loggedInUserId) throws NSException;
+	void updatenotePref(NotePreferences notePref, Integer loggedInUserId) throws NSException;
 
-	void deleteNote(long noteId, String loggedInUser) throws NSException;
+	void deleteNote(long noteId, Integer loggedInUser) throws NSException;
 
-	List<NoteDto> getNotes(String loggedInUser);
+	List<NoteDto> getNotes(Integer loggedInUser);
 
-	void saveLabel(Label label, String loggedInUserId) throws NSException;
+	void saveLabel(Label label, Integer loggedInUserId) throws NSException;
 
-	void renameLabel(Label label, String loggedInUserId) throws NSException;
+	void renameLabel(Label label, Integer loggedInUserId) throws NSException;
 
-	List<Label> getLabels(String userId);
+	List<Label> getLabels(Integer loggedInUserId);
 
-	void deleteLabel(int labelId, String loggedInUserId) throws NSException;
+	void deleteLabel(int labelId, Integer loggedInUserId) throws NSException;
 
-	void addLabelToNote(long noteId, int labelId, String loggedInUserId);
+	void addLabelToNote(long noteId, int labelId, Integer loggedInUserId) throws NSException;
 
-	void saveLabelFromNote(Label label, long noteId, String loggedInUserId);
+	void removeLabelFromNote(Label label, long noteId, Integer loggedInUserId) throws NSException;
 
-	void saveImage(MultipartFile image, long noteId);
+	void saveImage(MultipartFile image, long noteId, Integer loggedInUserId) throws NSException;
 
-	void deleteImage(int userId, long noteId, String key);
+	void deleteImage(Integer userId, long noteId, String key) throws NSException;
 
-	void collaborate(String sharingUserEmail, long noteId, String loggedInUserEmail);
+	void collaborate(String sharingUserEmail, long noteId, Integer loggedInUserEmail) throws NSException;
 
-	void removeCollaborator(String sharedUserId, long noteId, String loggedInUserId) throws NSException;
+	void removeCollaborator(String sharedUserId, long noteId, Integer loggedInUserId) throws NSException;
 	
-	void pinOrUnpin(long notePrefId, boolean isPinned, String loggedInUserId) throws NSException;
+	void pinOrUnpin(long notePrefId, boolean isPinned, Integer loggedInUserId) throws NSException;
 
-	void archiveOrUnarchive(long notePrefId, Status status, String loggedInUserId) throws NSException;
+	void archiveOrUnarchive(long notePrefId, Status status, Integer loggedInUserId) throws NSException;
 
-	void trashOrRestore(long notePrefId, Status status, String loggedInUserId) throws NSException;
+	void trashOrRestore(long notePrefId, Status status, Integer loggedInUserId) throws NSException;
 
 
 }

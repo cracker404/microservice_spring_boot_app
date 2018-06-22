@@ -26,7 +26,7 @@ public class RequestModifier extends ZuulFilter {
 	@Autowired
 	private RedisService redisService;
 	
-	List<String> ignoreUrls = new ArrayList<>();
+	List<String> ignoreUrls;
 	private static Logger log = LoggerFactory.getLogger(RequestModifier.class);
 	@PostConstruct
 	public void init(){

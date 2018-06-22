@@ -3,6 +3,7 @@ package com.fundoonote.msnoteservice.model;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,7 +22,7 @@ public class Label {
 	private String name;
 	
 	@Column
-	private String userId;
+	private Integer userId;
 	
 	@ManyToMany(mappedBy = "labels")
 	private Set<NotePreferences> notePref;
@@ -44,12 +45,12 @@ public class Label {
 		this.name = name;
 	}
 
-	public String getUserId() {
+	public Integer getUserId() {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserId(Integer userId2) {
+		this.userId = userId2;
 	}
 
 }

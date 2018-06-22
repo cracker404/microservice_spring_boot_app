@@ -22,7 +22,7 @@ public class Collaboration {
 	private Note note;
 
 	@Column
-	private String sharedById;
+	private Integer sharedById;
 
 	@Column
 	private String sharedId;
@@ -44,12 +44,12 @@ public class Collaboration {
 		this.note = note;
 	}
 
-	public String getSharedById() {
+	public Integer getSharedById() {
 		return sharedById;
 	}
 
-	public void setSharedById(String sharedById) {
-		this.sharedById = sharedById;
+	public void setSharedById(Integer userId) {
+		this.sharedById = userId;
 	}
 
 	public String getSharedId() {
