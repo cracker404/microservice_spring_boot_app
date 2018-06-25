@@ -25,7 +25,7 @@ public class Collaboration {
 	private Integer sharedById;
 
 	@Column
-	private String sharedId;
+	private Integer sharedId;
 
 	@Column
 	public long getId() {
@@ -52,11 +52,11 @@ public class Collaboration {
 		this.sharedById = userId;
 	}
 
-	public String getSharedId() {
+	public Integer getSharedId() {
 		return sharedId;
 	}
 
-	public void setSharedId(String sharedId) {
+	public void setSharedId(Integer sharedId) {
 		this.sharedId = sharedId;
 	}
 

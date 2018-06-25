@@ -39,9 +39,9 @@ public interface INoteService {
 
 	void deleteImage(Integer userId, long noteId, String key) throws NSException;
 
-	void collaborate(String sharingUserEmail, long noteId, Integer loggedInUserEmail) throws NSException;
+	void collaborate(Integer sharingUserEmail, long noteId, Integer loggedInUserEmail) throws NSException;
 
-	void removeCollaborator(String sharedUserId, long noteId, Integer loggedInUserId) throws NSException;
+	void removeCollaborator(Integer sharedUserId, long noteId, Integer loggedInUserId) throws NSException;
 	
 	void pinOrUnpin(long notePrefId, boolean isPinned, Integer loggedInUserId) throws NSException;
 

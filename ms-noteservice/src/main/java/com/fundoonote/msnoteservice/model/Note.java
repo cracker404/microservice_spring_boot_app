@@ -11,7 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -25,19 +24,17 @@ public class Note implements Serializable{
 	@GeneratedValue(strategy= GenerationType.AUTO)
 	private long noteId;
 	
-	@NotNull
 	@Column
 	private String title;
 	
-	@NotNull
 	@Column
 	private String body;
 	
 	@Column
-	private	 Date createdDate;
+	private	 Date createdDate = new Date();
 	
 	@Column
-	private Date lastUpdated;
+	private Date lastUpdated = new Date();
 	
 	@Column
 	private String imageUrl;

@@ -1,4 +1,4 @@
-package com.fundoonote.msnoteservice.utility;
+package com.fundoonote.msnoteservice.messages;
 
 public enum OperationType 
 {

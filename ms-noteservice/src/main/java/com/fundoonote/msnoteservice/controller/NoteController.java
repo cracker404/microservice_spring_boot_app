@@ -26,10 +26,10 @@ import com.fundoonote.msnoteservice.response.Response;
 import com.fundoonote.msnoteservice.service.INoteService;
 
 @RestController
-public class NoteController {
-
+public class NoteController 
+{
 	@Autowired
-	INoteService noteService;
+	private INoteService noteService;
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<?> saveNote(@RequestBody NoteDto note,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
@@ -152,7 +152,7 @@ public class NoteController {
 	}
 
 	@RequestMapping(value = "/collaborate", method = RequestMethod.POST)
-	ResponseEntity<Response> collaborate(@RequestHeader String sharingUserEmail, @RequestHeader int noteId,
+	ResponseEntity<Response> collaborate(@RequestParam Integer sharingUserEmail, @RequestParam int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
@@ -163,7 +163,7 @@ public class NoteController {
 	}
 
 	@RequestMapping(value = "/removecollaborate", method = RequestMethod.DELETE)
-	ResponseEntity<Response> removeCollaborate(@RequestHeader String sharedUserId, @RequestHeader long noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> removeCollaborate(@RequestParam Integer sharedUserId, @RequestParam long noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.removeCollaborator(sharedUserId, noteId, loggedInUserId);
