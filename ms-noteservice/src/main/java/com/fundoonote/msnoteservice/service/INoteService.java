@@ -13,40 +13,41 @@ import com.fundoonote.msnoteservice.model.Status;
 
 public interface INoteService {
 
-	void saveNote(NoteDto noteDto, String userId) throws NSException;
+	void saveNote(NoteDto noteDto, Integer loggedInUserId) throws NSException;
 
-	void updateNote(Note note) throws NSException;
+	void updateNote(Note note, Integer loggedInUserId) throws NSException;
 
-	void updatenotePref(NotePreferences notePref);
+	void updatenotePref(NotePreferences notePref, Integer loggedInUserId) throws NSException;
 
-	void deleteNote(int noteId) throws NSException;
+	void deleteNote(long noteId, Integer loggedInUser) throws NSException;
 
-	List<NoteDto> getNotes(String loggedInUser);
+	List<NoteDto> getNotes(Integer loggedInUser);
 
-	void saveLabel(Label label, String loggedInUserId);
+	void saveLabel(Label label, Integer loggedInUserId) throws NSException;
 
-	void renameLabel(Label label, String loggedInUserId);
+	void renameLabel(Label label, Integer loggedInUserId) throws NSException;
 
-	List<Label> getLabels();
+	List<Label> getLabels(Integer loggedInUserId);
 
-	void deleteLabel(int labelId);
+	void deleteLabel(int labelId, Integer loggedInUserId) throws NSException;
 
-	void addRemoveLabel(int noteId, int labelId);
+	void addLabelToNote(long noteId, int labelId, Integer loggedInUserId) throws NSException;
 
-	void saveLabelFromNote(Label label, int noteId, String loggedInUserId);
+	void removeLabelFromNote(Label label, long noteId, Integer loggedInUserId) throws NSException;
 
-	void saveImage(MultipartFile image, int noteId);
+	void saveImage(MultipartFile image, long noteId, Integer loggedInUserId) throws NSException;
 
-	void deleteImage(int userId, int noteId, String key);
+	void deleteImage(Integer userId, long noteId, String key) throws NSException;
 
-	void collaborat(String sharingUserEmail, int noteId, String loggedInUserEmail);
+	void collaborate(String sharingUserEmail, long noteId, Integer loggedInUserEmail) throws NSException;
 
-	void removeCollaboratUser();
+	void removeCollaborator(String sharedUserId, long noteId, Integer loggedInUserId) throws NSException;
+	
+	void pinOrUnpin(long notePrefId, boolean isPinned, Integer loggedInUserId) throws NSException;
 
-	void pinOrUnpin(int notePrefId, boolean isPinned, String loggedInUserId);
+	void archiveOrUnarchive(long notePrefId, Status status, Integer loggedInUserId) throws NSException;
 
-	void archiveOrUnarchive(int notePrefId, Status status, String loggedInUserId);
+	void trashOrRestore(long notePrefId, Status status, Integer loggedInUserId) throws NSException;
 
-	void trashOrRestore(int notePrefId, Status status, String loggedInUserId);
 
 }

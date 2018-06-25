@@ -1,10 +1,13 @@
 package com.fundoonote.msnoteservice.model;
 
+import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,8 +17,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class NotePreferences {
+public class NotePreferences implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long notePreId;
@@ -32,16 +37,16 @@ public class NotePreferences {
 	@Column
 	private Date remainder;
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name ="NoteLabel", joinColumns=@JoinColumn(name="noteId"), inverseJoinColumns=@JoinColumn(name="labelId"))
-	private Set<Label> labels;
+	private Set<Label> labels = new HashSet<Label>();
 	
 	@ManyToOne
 	@JoinColumn(name="noteId")
 	private Note note;
 	
 	@Column
-	private String userId;
+	private Integer userId;
 	
 	public long getNotePreId() {
 		return notePreId;
@@ -61,6 +66,7 @@ public class NotePreferences {
 	public void setPin(boolean isPin) {
 		this.isPin = isPin;
 	}
+	
 	public String getColor() {
 		return color;
 	}
@@ -73,22 +79,22 @@ public class NotePreferences {
 	public void setRemainder(Date remainder) {
 		this.remainder = remainder;
 	}
-	/*public Set<Label> getLabels() {
+	public Set<Label> getLabels() {
 		return labels;
 	}
 	public void setLabels(Set<Label> labels) {
 		this.labels = labels;
-	}*/
+	}
 	public Note getNote() {
 		return note;
 	}
 	public void setNote(Note note) {
 		this.note = note;
 	}
-	public String getUserId() {
+	public Integer getUserId() {
 		return userId;
 	}
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserId(Integer userId2) {
+		this.userId = userId2;
 	}
 }

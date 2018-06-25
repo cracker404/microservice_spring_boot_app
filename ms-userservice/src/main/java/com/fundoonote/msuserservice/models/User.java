@@ -38,14 +38,16 @@ public class User implements Serializable
 	@Pattern(groups = Pattern.class, regexp = "(^$|[0-9]{10})", message = "provide valid Mobile Number")
 	private String mobileNumber;
 	
-	private boolean isActivated;
-	
 	private String role = "USER";
 	
 	private String picUrl;
+	
 	public int getUserId() {
 		return userId;
 	}
+
+	private boolean isActivated = false;
+
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
@@ -97,5 +99,4 @@ public class User implements Serializable
 				+ ", mobileNumber=" + mobileNumber + ", isActivated=" + isActivated + ", role=" + role + ", picUrl="
 				+ picUrl + "]";
 	}
-
 }
