@@ -44,4 +44,6 @@ hs_err_pid*
 /.metadata/
 /.metadata/
 /.recommenders/
+/demo
+/mqtt-sample-java
 >>>>>>> config-service
