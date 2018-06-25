@@ -26,5 +26,7 @@ public interface IESService {
 	// wildcard search with restrictions(such as user id) and field priority
 	List<String> multipleFieldSearchWithWildcard(String text, Map<String, Float> fields,
 			Map<String, Object> restrictions, String index) throws FNException;
+	
+	List<String> searchByText(String index, String type, String text) throws FNException;
 
 }

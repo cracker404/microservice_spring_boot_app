@@ -185,4 +185,27 @@ public class ESServiceImpl implements IESService {
 		}
 
 	}
+
+	public List<String> searchByText(String index, String type, String text) throws FNException {
+
+		try {
+			BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+			QueryBuilder builder = boolQueryBuilder.must(QueryBuilders.queryStringQuery(text).lenient(true));
+			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+			sourceBuilder.query(builder);
+			sourceBuilder.fetchSource(null, new String[] {"password"});
+			SearchRequest searchRequest = new SearchRequest(index).types(type).source(sourceBuilder);
+			SearchResponse searchResponse = client.search(searchRequest);
+
+			List<String> results = new ArrayList<>();
+			for (SearchHit hit : searchResponse.getHits()) {
+				results.add(hit.getSourceAsString());
+			}
+
+			return results;
+		} catch (Exception e) {
+			throw new FNException(-110, new Object[] { e.getMessage() + "(" + e.getMessage() + ")" }, e);
+		}
+	}
+
 }
