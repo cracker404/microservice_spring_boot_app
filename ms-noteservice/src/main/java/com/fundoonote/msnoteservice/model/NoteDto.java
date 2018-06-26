@@ -11,7 +11,7 @@ public class NoteDto
 	
 	private MultipartFile image;
 	
-	private Set<Integer> CollaboratorIds = new HashSet<>();
+	private Set<Integer> collaboratorIds = new HashSet<>();
 	
 	private NotePreferences notePreferences;
 	
@@ -28,10 +28,10 @@ public class NoteDto
 		this.image = image;
 	}
 	public Set<Integer> getCollaboratorId() {
-		return CollaboratorIds;
+		return collaboratorIds;
 	}
 	public void setCollaboratorId(Set<Integer> collaboratorId) {
-		CollaboratorIds = collaboratorId;
+		collaboratorIds = collaboratorId;
 	}
 	public NotePreferences getNotePreferences() {
 		return notePreferences;

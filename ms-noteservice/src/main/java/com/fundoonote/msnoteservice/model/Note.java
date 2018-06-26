@@ -45,10 +45,11 @@ public class Note implements Serializable{
 	@Column
 	private String shareByUserId;
 	
-	@OneToMany(mappedBy = "note")
 	@JsonIgnore
+	@OneToMany(mappedBy = "note")
 	private Set<NotePreferences> notePreferences;
-	
+
+	@JsonIgnore
 	@OneToMany(mappedBy="note")
 	private Set<Collaboration> collaborations;
 	
