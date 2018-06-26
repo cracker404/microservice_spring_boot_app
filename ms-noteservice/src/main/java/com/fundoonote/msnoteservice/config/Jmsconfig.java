@@ -45,7 +45,7 @@ public class Jmsconfig
 	@Bean
 	public Queue queue() 
 	{
-		return new ActiveMQQueue("queue");
+		return new ActiveMQQueue(queue);
 	}
 
 	@Bean

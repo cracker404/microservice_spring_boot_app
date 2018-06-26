@@ -71,13 +71,13 @@ public class NoteController
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/updateNotePref", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/updatenotepref", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Response> updateNotePref(@RequestBody NotePreferences notePref, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException{
 
 		Response response = new Response();
 		noteService.updatenotePref(notePref, loggedInUserId);
 		response.setStatusCode(200);
-		response.setResponseMessage("Note Preferences added...");
+		response.setResponseMessage("Note Preferences updated...");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -132,7 +132,7 @@ public class NoteController
 
 	}
 
-	@RequestMapping(value = "/label/addlabel", method = RequestMethod.POST)
+	@RequestMapping(value = "/label/addlabeltonote", method = RequestMethod.POST)
 	ResponseEntity<Response> addLabel(@RequestHeader int noteId, @RequestHeader int labelId,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
@@ -142,11 +142,13 @@ public class NoteController
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/label/removeLabelFromNote", method = RequestMethod.POST)
+	@RequestMapping(value = "/label/removelabelfromnote", method = RequestMethod.POST)
 	ResponseEntity<Response> saveLabelFromNote(@RequestBody Label label, @RequestHeader int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
+		response.setResponseMessage("Label removed from note succesfully..!!");
+		response.setStatusCode(200);
 		noteService.removeLabelFromNote(label, noteId, loggedInUserId);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}

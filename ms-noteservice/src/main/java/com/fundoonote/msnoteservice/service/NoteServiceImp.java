@@ -1,6 +1,5 @@
 package com.fundoonote.msnoteservice.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +11,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fundoonote.msnoteservice.dao.ICollaboratorDao;
@@ -28,6 +28,26 @@ import com.fundoonote.msnoteservice.model.NoteDto;
 import com.fundoonote.msnoteservice.model.NotePreferences;
 import com.fundoonote.msnoteservice.model.Status;
 
+/**
+ * <p>
+ * This is a service layer for Note With
+ * {@link Service @Service}, we have added all general purpose
+ * methods here those method will be invoked from NoteController 
+ * by passing appropriate parameters and will return a required response.
+ * </p>
+ * <p>
+ * The methods are self explanatory we have used <b>{@code @RestController}</b>
+ * annotation to point incoming requests to this class, and
+ * <b>{@link ResponseBody @ResponseBody}</b> annotation to point incoming
+ * requests to appropriate Methods. <b>{@link RequestBody @RequestBody}</b>
+ * annotation is used to accept data with request in JSON form and Spring
+ * ResponseEntity is used to return JSON as response to incoming request.
+ * </p>
+ * 
+ * @version 1
+ * @since 2017-03-10
+ * @author Bridgelabz
+ */
 @Service
 public class NoteServiceImp implements INoteService {
 
@@ -50,11 +70,9 @@ public class NoteServiceImp implements INoteService {
 	private S3Service s3Service;
 
 	@Override
-	public void saveNote(NoteDto noteDto, Integer loggedInUserId) throws NSException 
-	{
+	public void saveNote(NoteDto noteDto, Integer loggedInUserId) throws NSException {
 		String imageUrl = null;
-		if (noteDto.getImage() != null) 
-		{
+		if (noteDto.getImage() != null) {
 			imageUrl = s3Service.saveImageToS3(noteDto.getNote().getNoteId(), noteDto.getImage());
 		}
 		Note note = noteDto.getNote();
@@ -62,12 +80,12 @@ public class NoteServiceImp implements INoteService {
 		note.setUserId(loggedInUserId);
 		noteDao.save(note);
 		jmsService.addToQueue(note, OperationType.SAVE);
-		
+
 		NotePreferences notePref = noteDto.getNotePreferences();
 		saveNotePrefFromNote(notePref, note, loggedInUserId);
-		
+
 		Set<Integer> collabUserIds = noteDto.getCollaboratorId();
-		for(Integer id: collabUserIds) {
+		for (Integer id : collabUserIds) {
 			Collaboration collaboration = new Collaboration();
 			collaboration.setNote(note);
 			collaboration.setSharedById(loggedInUserId);
@@ -78,8 +96,7 @@ public class NoteServiceImp implements INoteService {
 		}
 	}
 
-	private void saveNotePrefFromNote(NotePreferences notePreferences, Note note, Integer userId) throws NSException 
-	{
+	private void saveNotePrefFromNote(NotePreferences notePreferences, Note note, Integer userId) throws NSException {
 		notePreferences.setNote(note);
 		notePreferences.setUserId(userId);
 		notePrefDao.save(notePreferences);
@@ -87,14 +104,13 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void updateNote(Note note, Integer userId) throws NSException 
-	{
+	public void updateNote(Note note, Integer userId) throws NSException {
 		Optional<Note> oldNote = noteDao.findById(note.getNoteId());
-		
+
 		if (!oldNote.isPresent() && !(oldNote.get().getUserId() == userId)) {
 			throw new NSException(111, new Object[] { "" });
 		}
-		
+
 		note.setLastUpdated(new Date());
 		noteDao.save(note);
 		jmsService.addToQueue(note, OperationType.UPDATE);
@@ -107,7 +123,7 @@ public class NoteServiceImp implements INoteService {
 		if (!oldNotePreferences.isPresent() && !oldNotePreferences.get().getUserId().equals(loggedInUserId)) {
 			throw new NSException(111, new Object[] { "" });
 		}
-		
+
 		notePrefDao.save(notePref);
 		jmsService.addToQueue(notePref, OperationType.UPDATE);
 	}
@@ -228,7 +244,7 @@ public class NoteServiceImp implements INoteService {
 			for (Label notePrefLabel : labels) {
 				if (notePrefLabel.getLabelId() == label.getLabelId())
 					labels.remove(label);
-				System.out.println(labels.size()+"" + labels.isEmpty());
+				System.out.println(labels.size() + "" + labels.isEmpty());
 			}
 		}
 		notePreferences.setLabels(labels);
@@ -238,36 +254,35 @@ public class NoteServiceImp implements INoteService {
 	@Override
 	public void deleteImage(Integer loggedInUserId, long noteId, String key) throws NSException {
 
-		Note note = noteDao.getOne(noteId);
-		if (note.getUserId() == loggedInUserId) {
-			throw new NSException(101, new Object[] { "" });
+		Optional<Note> note = noteDao.findById(noteId);
+		if (!(note.get().getUserId() == loggedInUserId)) {
+			throw new NSException(101, new Object[] { "note.getId()" });
 		}
 		s3Service.deleteFileFromS3(key);
-		note.setImageUrl(null);
-		noteDao.save(note);
+		note.get().setImageUrl(null);
+		noteDao.save(note.get());
 	}
 
 	@Override
 	public void saveImage(MultipartFile image, long noteId, Integer loggedInUserId) throws NSException {
 
-		Note note = noteDao.getOne(noteId);
-		if (note.getUserId() == loggedInUserId) {
+		Optional<Note> note = noteDao.findById(noteId);
+		if (!(note.get().getUserId() == loggedInUserId)) {
 			throw new NSException(101, new Object[] { "" });
 		}
 		String imageUrl = s3Service.saveImageToS3(noteId, image);
 		if (imageUrl == null) {
 			throw new NSException(108, new Object[] { "" });
 		}
-		note.setImageUrl(imageUrl);
-		noteDao.save(note);
+		note.get().setImageUrl(imageUrl);
+		noteDao.save(note.get());
 	}
 
 	@Override
 	public void collaborate(Integer sharingUserEmail, long noteId, Integer loggedInUserId) throws NSException {
 
-		Collaboration collaboration = new Collaboration();
 		Note note = noteDao.getOne(noteId);
-		if (note.getUserId() == loggedInUserId) {
+		if (!(note.getUserId() == loggedInUserId)) {
 			throw new NSException(101, new Object[] { "" });
 		}
 		Set<Integer> collaboratorId = getAllCollabUserByNote(noteId);
@@ -275,6 +290,7 @@ public class NoteServiceImp implements INoteService {
 			if (collaborators.equals(sharingUserEmail))
 				throw new NSException(121, new Object[] { "" });
 		}
+		Collaboration collaboration = new Collaboration();
 		collaboration.setNote(note);
 		collaboration.setSharedById(loggedInUserId);
 		collaboration.setSharedId(sharingUserEmail);

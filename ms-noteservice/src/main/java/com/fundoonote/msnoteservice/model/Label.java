@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table
 public class Label {
@@ -23,6 +25,7 @@ public class Label {
 	@Column
 	private Integer userId;
 	
+	@JsonIgnore
 	@ManyToMany(mappedBy = "labels")
 	private Set<NotePreferences> notePref;
 
