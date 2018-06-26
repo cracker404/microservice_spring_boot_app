@@ -10,6 +10,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.core.JmsTemplate;
 
+/**
+ * <p>
+ * This is a configuration for Note Service application With
+ * {@link Configuration @Configuration}, {@link EnableJMS @EnableJMS},
+ *  we have created a bean of JMS Templates and 
+ *  ActiveMqConnectionfactory
+ * </p>
+ * <p>
+ * The methods are invoked at the time of creating of bean
+ * </p>
+ * 
+ * @version 1
+ * @since 2017-03-10
+ * @author Bridgelabz
+ */
 @EnableJms
 @Configuration
 @ConditionalOnExpression("'${mode}'.equals('development')")

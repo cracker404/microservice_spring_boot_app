@@ -1,5 +1,6 @@
 package com.fundoonote.msnoteservice.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -89,30 +90,24 @@ public class NoteServiceImp implements INoteService {
 	public void updateNote(Note note, Integer userId) throws NSException 
 	{
 		Optional<Note> oldNote = noteDao.findById(note.getNoteId());
-		if (!oldNote.isPresent()) {
-			throw new NSException(124, new Object[] { "note.getId()" });
-		}
-		if (!(oldNote.get().getUserId() == userId)) {
-			throw new NSException(111, new Object[] { "update note " });
-		}
-		oldNote.get().setTitle(note.getTitle());
-		oldNote.get().setBody(note.getBody());
-		oldNote.get().setLastUpdated(new Date());
-		noteDao.save(oldNote.get());
 		
-		jmsService.addToQueue(oldNote, OperationType.UPDATE);
+		if (!oldNote.isPresent() && !(oldNote.get().getUserId() == userId)) {
+			throw new NSException(111, new Object[] { "" });
+		}
+		
+		note.setLastUpdated(new Date());
+		noteDao.save(note);
+		jmsService.addToQueue(note, OperationType.UPDATE);
 	}
 
 	@Override
 	public void updatenotePref(NotePreferences notePref, Integer loggedInUserId) throws NSException {
 
 		Optional<NotePreferences> oldNotePreferences = notePrefDao.findById(notePref.getNotePreId());
-		if (!oldNotePreferences.isPresent()) {
-			throw new NSException(124, new Object[] { "notePref.getNotePreId()" });
+		if (!oldNotePreferences.isPresent() && !oldNotePreferences.get().getUserId().equals(loggedInUserId)) {
+			throw new NSException(111, new Object[] { "" });
 		}
-		if (!oldNotePreferences.get().getUserId().equals(loggedInUserId)) {
-			throw new NSException(111, new Object[] { "update note " });
-		}
+		
 		notePrefDao.save(notePref);
 		jmsService.addToQueue(notePref, OperationType.UPDATE);
 	}
@@ -342,6 +337,20 @@ public class NoteServiceImp implements INoteService {
 		notePreferences.setUserId(loggedInUserId);
 		notePrefDao.save(notePreferences);
 
+	}
+
+	@Override
+	public List<NoteDto> getNoteByStatus(Status status, Integer loggedInUser) {
+		List<NotePreferences> notePreferences = notePrefDao.getAllNotePreferenceByUserIdAndStatus(loggedInUser, status);
+		List<NoteDto> result = notePreferences.stream().map(temp -> {
+			NoteDto noteDto = new NoteDto();
+			noteDto.setNote(temp.getNote());
+			noteDto.setCollaboratorId(getAllCollabUserByNote(temp.getNote().getNoteId()));
+			noteDto.setNotePreferences(temp);
+			return noteDto;
+		}).collect(Collectors.toList());
+
+		return result;
 	}
 
 }

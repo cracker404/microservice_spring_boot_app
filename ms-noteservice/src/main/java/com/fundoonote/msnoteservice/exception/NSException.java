@@ -6,13 +6,23 @@ import com.fundoonote.msnoteservice.config.ApplicationConfiguration;
 import com.fundoonote.msnoteservice.response.ErrorResponse;
 import com.fundoonote.msnoteservice.response.Response;
 
-
-
+/**
+ * <p>
+ * This is a class for NoteService Exception which extends 
+ * exception class we have used this custom exception to throw 
+ * our own exception at runtime 
+ * </p>
+ * 
+ * @version 1
+ * @since 2017-03-10
+ * @author Bridgelabz
+ */
 public class NSException extends Exception{
 	
 	 private static final long serialVersionUID = 1L;
 
 	   protected long errorCode;
+	   
 	   protected Object[] args;
 
 	   public NSException(long errorCode)

@@ -25,6 +25,26 @@ import com.fundoonote.msnoteservice.model.Status;
 import com.fundoonote.msnoteservice.response.Response;
 import com.fundoonote.msnoteservice.service.INoteService;
 
+/**
+ * <p>
+ * This is a Rest Controller for Note With
+ * {@link RestController @RestController}, we have added all general purpose
+ * methods here those method will accept a rest request in JSON form and will
+ * return a JSON response.
+ * </p>
+ * <p>
+ * The methods are self explanatory we have used <b>{@code @RestController}</b>
+ * annotation to point incoming requests to this class, and
+ * <b>{@link ResponseBody @ResponseBody}</b> annotation to point incoming
+ * requests to appropriate Methods. <b>{@link RequestBody @RequestBody}</b>
+ * annotation is used to accept data with request in JSON form and Spring
+ * ResponseEntity is used to return JSON as response to incoming request.
+ * </p>
+ * 
+ * @version 1
+ * @since 2017-03-10
+ * @author Bridgelabz
+ */
 @RestController
 public class NoteController 
 {
@@ -203,5 +223,11 @@ public class NoteController
 		response.setStatusCode(200);
 		response.setResponseMessage("data updated successfully");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/getnotebystatus", method = RequestMethod.GET)
+	ResponseEntity<List<NoteDto>> getNoteByStatus(@RequestHeader(name="userId") Integer loggedInUserId, @RequestHeader Status status){
+		List<NoteDto> noteDto = noteService.getNoteByStatus(status, loggedInUserId);
+		return new ResponseEntity<List<NoteDto>>(noteDto, HttpStatus.OK);
 	}
 }

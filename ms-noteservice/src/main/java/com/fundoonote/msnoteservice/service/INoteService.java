@@ -48,6 +48,6 @@ public interface INoteService {
 	void archiveOrUnarchive(long notePrefId, Status status, Integer loggedInUserId) throws NSException;
 
 	void trashOrRestore(long notePrefId, Status status, Integer loggedInUserId) throws NSException;
-
-
+	
+	List<NoteDto> getNoteByStatus(Status status, Integer loggedInUserId);
 }
