@@ -43,7 +43,6 @@ public class NoteController
 	@RequestMapping(value = "/updatenote", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Response> updateNote(@RequestBody Note note, @RequestHeader(name="userId") Integer loggedInUserId)
 			throws NSException {
-
 		Response response = new Response();
 		noteService.updateNote(note, loggedInUserId);
 		response.setStatusCode(200);

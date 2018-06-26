@@ -25,10 +25,6 @@ hystrix:
           thread:
             timeoutInMilliseconds: 60000
       
-spring:
-  cloud:
-    config:
-      uri: http://localhost:8081
 ribbon:
   ReadTimeout: 60000
   ConnectTimeout: 60000

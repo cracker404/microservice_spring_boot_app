@@ -89,16 +89,11 @@ public class NoteServiceImp implements INoteService {
 	public void updateNote(Note note, Integer userId) throws NSException 
 	{
 		Optional<Note> oldNote = noteDao.findById(note.getNoteId());
-		if (!oldNote.isPresent()) {
-			throw new NSException(124, new Object[] { "note.getId()" });
+		if ( !oldNote.isPresent() || (oldNote.get().getUserId() != userId) ) {
+			throw new NSException(111, new Object[] { "update note" });
 		}
-		if (!(oldNote.get().getUserId() == userId)) {
-			throw new NSException(111, new Object[] { "update note " });
-		}
-		oldNote.get().setTitle(note.getTitle());
-		oldNote.get().setBody(note.getBody());
-		oldNote.get().setLastUpdated(new Date());
-		noteDao.save(oldNote.get());
+		note.setLastUpdated(new Date());
+		noteDao.save(note);
 		
 		jmsService.addToQueue(oldNote, OperationType.UPDATE);
 	}
