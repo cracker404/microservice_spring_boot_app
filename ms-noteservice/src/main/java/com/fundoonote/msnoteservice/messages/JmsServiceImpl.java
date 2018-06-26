@@ -1,4 +1,4 @@
-package com.fundoonote.msnoteservice.utility.messagesservice;
+package com.fundoonote.msnoteservice.messages;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -12,7 +12,6 @@ import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Service;
 
 import com.fundoonote.msnoteservice.exception.NSException;
-import com.fundoonote.msnoteservice.utility.OperationType;
 
 
 @Service

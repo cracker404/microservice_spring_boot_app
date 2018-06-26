@@ -1,7 +1,6 @@
-package com.fundoonote.msnoteservice.utility.messagesservice;
+package com.fundoonote.msnoteservice.messages;
 
 import com.fundoonote.msnoteservice.exception.*;
-import com.fundoonote.msnoteservice.utility.OperationType;
 
 public interface IJmsService
 {

@@ -41,13 +41,11 @@ public class User implements Serializable
 	private String role = "USER";
 	
 	private String picUrl;
-	
+
+	private boolean isActivated;
 	public int getUserId() {
 		return userId;
 	}
-
-	private boolean isActivated = false;
-
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}

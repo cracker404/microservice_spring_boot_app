@@ -1,8 +1,6 @@
-package com.fundoonote.msnoteservice.utility.messagesservice;
+package com.fundoonote.msnoteservice.messages;
 
 import java.io.Serializable;
-
-import com.fundoonote.msnoteservice.utility.OperationType;
 
 public class JmsDto<T> implements Serializable {
 

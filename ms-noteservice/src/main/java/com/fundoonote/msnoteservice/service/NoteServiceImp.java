@@ -19,111 +19,95 @@ import com.fundoonote.msnoteservice.dao.ILabeDao;
 import com.fundoonote.msnoteservice.dao.INoteDao;
 import com.fundoonote.msnoteservice.dao.INotePrefDao;
 import com.fundoonote.msnoteservice.exception.NSException;
+import com.fundoonote.msnoteservice.messages.IJmsService;
+import com.fundoonote.msnoteservice.messages.OperationType;
 import com.fundoonote.msnoteservice.model.Collaboration;
 import com.fundoonote.msnoteservice.model.Label;
 import com.fundoonote.msnoteservice.model.Note;
 import com.fundoonote.msnoteservice.model.NoteDto;
 import com.fundoonote.msnoteservice.model.NotePreferences;
 import com.fundoonote.msnoteservice.model.Status;
-import com.fundoonote.msnoteservice.utility.OperationType;
-import com.fundoonote.msnoteservice.utility.S3Service;
-import com.fundoonote.msnoteservice.utility.messagesservice.IJmsService;
 
 @Service
 public class NoteServiceImp implements INoteService {
 
 	@Autowired
-	INoteDao noteDao;
+	private INoteDao noteDao;
 
 	@Autowired
-	ILabeDao labelDao;
+	private ILabeDao labelDao;
 
 	@Autowired
-	IJmsService jmsService;
+	private IJmsService jmsService;
 
 	@Autowired
-	INotePrefDao notePrefDao;
-
-	/*
-	 * @Autowired IUserDao userDao;
-	 */
+	private INotePrefDao notePrefDao;
 
 	@Autowired
-	ICollaboratorDao collaboratorDao;
+	private ICollaboratorDao collaboratorDao;
 
 	@Autowired
-	S3Service s3Service;
+	private S3Service s3Service;
 
 	@Override
-	public void saveNote(NoteDto noteDto, Integer userId) throws NSException {
-
+	public void saveNote(NoteDto noteDto, Integer loggedInUserId) throws NSException 
+	{
 		String imageUrl = null;
-		if (noteDto.getImage() != null) {
+		if (noteDto.getImage() != null) 
+		{
 			imageUrl = s3Service.saveImageToS3(noteDto.getNote().getNoteId(), noteDto.getImage());
 		}
 		Note note = noteDto.getNote();
-		note.setUserId(userId);
-		note.setCreatedDate(new Date());
-		note.setLastUpdated(new Date());
+		note.setImageUrl(imageUrl);
+		note.setUserId(loggedInUserId);
 		noteDao.save(note);
 		jmsService.addToQueue(note, OperationType.SAVE);
+		
 		NotePreferences notePref = noteDto.getNotePreferences();
-		notePref.setNote(note);
-		notePref.setUserId(userId);
-		notePrefDao.save(notePref);
-		jmsService.addToQueue(notePref, OperationType.SAVE);
-
-		if (noteDto.getNotePreferences().getLabels() != null) {
-			Set<Label> labels = noteDto.getNotePreferences().getLabels();
-			for (Label label : labels) {
-				label.setUserId(userId);
-				labelDao.save(label);
-			}
-			notePref.setLabels(labels);
-			notePref.setNote(note);
-			notePref.setUserId(userId);
-			notePrefDao.save(notePref);
-		}
-
-		if (noteDto.getCollaboratorId() != null) {
-			Set<String> collaborators = noteDto.getCollaboratorId();
-			for (String collaboratorid : collaborators) {
-				Collaboration collaboration = new Collaboration();
-				collaboration.setNote(note);
-				collaboration.setSharedById(userId);
-				collaboration.setSharedId(collaboratorid.toString());
-				collaboratorDao.save(collaboration);
-			}
+		saveNotePrefFromNote(notePref, note, loggedInUserId);
+		
+		Set<Integer> collabUserIds = noteDto.getCollaboratorId();
+		for(Integer id: collabUserIds) {
+			Collaboration collaboration = new Collaboration();
+			collaboration.setNote(note);
+			collaboration.setSharedById(loggedInUserId);
+			collaboration.setSharedId(id);
+			collaboratorDao.save(collaboration);
+			jmsService.addToQueue(collaboration, OperationType.SAVE);
+			saveNotePrefFromNote(new NotePreferences(), note, id);
 		}
 	}
 
+	private void saveNotePrefFromNote(NotePreferences notePreferences, Note note, Integer userId) throws NSException 
+	{
+		notePreferences.setNote(note);
+		notePreferences.setUserId(userId);
+		notePrefDao.save(notePreferences);
+		jmsService.addToQueue(notePreferences, OperationType.SAVE);
+	}
+
 	@Override
-	public void updateNote(Note note, Integer userId) throws NSException {
+	public void updateNote(Note note, Integer userId) throws NSException 
+	{
 		Optional<Note> oldNote = noteDao.findById(note.getNoteId());
-		if (!oldNote.isPresent()) {
-			throw new NSException(124, new Object[] { "note.getId()" });
+		
+		if (!oldNote.isPresent() && !(oldNote.get().getUserId() == userId)) {
+			throw new NSException(111, new Object[] { "" });
 		}
-		if (!(oldNote.get().getUserId() == userId)) {
-			throw new NSException(111, new Object[] { "update note " });
-		}
-		Note newNote = oldNote.get();
-		newNote.setTitle(note.getTitle());
-		newNote.setBody(note.getBody());
-		newNote.setLastUpdated(new Date());
-		noteDao.save(newNote);
-		jmsService.addToQueue(oldNote, OperationType.UPDATE);
+		
+		note.setLastUpdated(new Date());
+		noteDao.save(note);
+		jmsService.addToQueue(note, OperationType.UPDATE);
 	}
 
 	@Override
 	public void updatenotePref(NotePreferences notePref, Integer loggedInUserId) throws NSException {
 
 		Optional<NotePreferences> oldNotePreferences = notePrefDao.findById(notePref.getNotePreId());
-		if (!oldNotePreferences.isPresent()) {
-			throw new NSException(124, new Object[] { "notePref.getNotePreId()" });
+		if (!oldNotePreferences.isPresent() && !oldNotePreferences.get().getUserId().equals(loggedInUserId)) {
+			throw new NSException(111, new Object[] { "" });
 		}
-		if (!oldNotePreferences.get().getUserId().equals(loggedInUserId)) {
-			throw new NSException(111, new Object[] { "update note " });
-		}
+		
 		notePrefDao.save(notePref);
 		jmsService.addToQueue(notePref, OperationType.UPDATE);
 	}
@@ -142,7 +126,6 @@ public class NoteServiceImp implements INoteService {
 	@Override
 	public List<NoteDto> getNotes(Integer loggedInUser) {
 
-		List<NoteDto> noteDTOs = new ArrayList<NoteDto>();
 		List<NotePreferences> notePreferences = notePrefDao.getAllNotePreferenceByUserId(loggedInUser);
 		List<NoteDto> result = notePreferences.stream().map(temp -> {
 			NoteDto noteDto = new NoteDto();
@@ -155,11 +138,11 @@ public class NoteServiceImp implements INoteService {
 		return result;
 	}
 
-	private Set<String> getAllCollabUserByNote(long noteId) {
+	private Set<Integer> getAllCollabUserByNote(long noteId) {
 		Note note = new Note();
 		note.setNoteId(noteId);
 		List<Collaboration> collaborators = collaboratorDao.getByNote(note);
-		Set<String> sharedUserIds = collaborators.stream().map(temp -> temp.getSharedId()).collect(Collectors.toSet());
+		Set<Integer> sharedUserIds = collaborators.stream().map(temp -> temp.getSharedId()).collect(Collectors.toSet());
 		return sharedUserIds;
 	}
 
@@ -280,15 +263,15 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void collaborate(String sharingUserEmail, long noteId, Integer loggedInUserId) throws NSException {
+	public void collaborate(Integer sharingUserEmail, long noteId, Integer loggedInUserId) throws NSException {
 
 		Collaboration collaboration = new Collaboration();
 		Note note = noteDao.getOne(noteId);
 		if (note.getUserId() == loggedInUserId) {
 			throw new NSException(101, new Object[] { "" });
 		}
-		Set<String> collaboratorId = getAllCollabUserByNote(noteId);
-		for (String collaborators : collaboratorId) {
+		Set<Integer> collaboratorId = getAllCollabUserByNote(noteId);
+		for (Integer collaborators : collaboratorId) {
 			if (collaborators.equals(sharingUserEmail))
 				throw new NSException(121, new Object[] { "" });
 		}
@@ -299,7 +282,7 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void removeCollaborator(String sharedUserId, long noteId, Integer loggedInUserId) throws NSException {
+	public void removeCollaborator(Integer sharedUserId, long noteId, Integer loggedInUserId) throws NSException {
 		Note note = noteDao.getOne(noteId);
 		if (note.getUserId() == loggedInUserId) {
 			throw new NSException(101, new Object[] { "" });
@@ -354,6 +337,20 @@ public class NoteServiceImp implements INoteService {
 		notePreferences.setUserId(loggedInUserId);
 		notePrefDao.save(notePreferences);
 
+	}
+
+	@Override
+	public List<NoteDto> getNoteByStatus(Status status, Integer loggedInUser) {
+		List<NotePreferences> notePreferences = notePrefDao.getAllNotePreferenceByUserIdAndStatus(loggedInUser, status);
+		List<NoteDto> result = notePreferences.stream().map(temp -> {
+			NoteDto noteDto = new NoteDto();
+			noteDto.setNote(temp.getNote());
+			noteDto.setCollaboratorId(getAllCollabUserByNote(temp.getNote().getNoteId()));
+			noteDto.setNotePreferences(temp);
+			return noteDto;
+		}).collect(Collectors.toList());
+
+		return result;
 	}
 
 }

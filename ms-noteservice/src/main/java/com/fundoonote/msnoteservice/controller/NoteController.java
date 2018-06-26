@@ -24,11 +24,31 @@ import com.fundoonote.msnoteservice.model.Status;
 import com.fundoonote.msnoteservice.response.Response;
 import com.fundoonote.msnoteservice.service.INoteService;
 
+/**
+ * <p>
+ * This is a Rest Controller for Note With
+ * {@link RestController @RestController}, we have added all general purpose
+ * methods here those method will accept a rest request in JSON form and will
+ * return a JSON response.
+ * </p>
+ * <p>
+ * The methods are self explanatory we have used <b>{@code @RestController}</b>
+ * annotation to point incoming requests to this class, and
+ * <b>{@link ResponseBody @ResponseBody}</b> annotation to point incoming
+ * requests to appropriate Methods. <b>{@link RequestBody @RequestBody}</b>
+ * annotation is used to accept data with request in JSON form and Spring
+ * ResponseEntity is used to return JSON as response to incoming request.
+ * </p>
+ * 
+ * @version 1
+ * @since 2017-03-10
+ * @author Bridgelabz
+ */
 @RestController
-public class NoteController {
-
+public class NoteController 
+{
 	@Autowired
-	INoteService noteService;
+	private INoteService noteService;
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<?> saveNote(@RequestBody NoteDto note,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
@@ -151,7 +171,7 @@ public class NoteController {
 	}
 
 	@RequestMapping(value = "/collaborate", method = RequestMethod.POST)
-	ResponseEntity<Response> collaborate(@RequestHeader String sharingUserEmail, @RequestHeader int noteId,
+	ResponseEntity<Response> collaborate(@RequestParam Integer sharingUserEmail, @RequestParam int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
@@ -162,7 +182,7 @@ public class NoteController {
 	}
 
 	@RequestMapping(value = "/removecollaborate", method = RequestMethod.DELETE)
-	ResponseEntity<Response> removeCollaborate(@RequestHeader String sharedUserId, @RequestHeader long noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> removeCollaborate(@RequestParam Integer sharedUserId, @RequestParam long noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.removeCollaborator(sharedUserId, noteId, loggedInUserId);
@@ -202,5 +222,11 @@ public class NoteController {
 		response.setStatusCode(200);
 		response.setResponseMessage("data updated successfully");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/getnotebystatus", method = RequestMethod.GET)
+	ResponseEntity<List<NoteDto>> getNoteByStatus(@RequestHeader(name="userId") Integer loggedInUserId, @RequestHeader Status status){
+		List<NoteDto> noteDto = noteService.getNoteByStatus(status, loggedInUserId);
+		return new ResponseEntity<List<NoteDto>>(noteDto, HttpStatus.OK);
 	}
 }

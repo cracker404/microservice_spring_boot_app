@@ -15,20 +15,29 @@ import org.springframework.jms.core.JmsTemplate;
 @ConditionalOnExpression("'${mode}'.equals('development')")
 public class Jmsconfig
 {
-   @Value("${activemq.url}")
+   @Value("${broker.url}")
    private String url;
 
    @Value("${async.queue}")
    private String queue;
    
-   public Jmsconfig() {
+   @Value("${broker.username")
+   private String brokerUserName;
+   
+   @Value("${broker.password")
+   private String brokerPassword;
+   
+   public Jmsconfig()
+   {
 	   System.out.println("Create "+getClass().getName());
-}
+   }
    @Bean
    public CachingConnectionFactory cachingConnectionFactory()
    {
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(url);
       factory.setTrustAllPackages(true);
+      factory.setPassword(brokerUserName);
+      factory.setUserName(brokerPassword);
       return new CachingConnectionFactory(factory);
    }
 
