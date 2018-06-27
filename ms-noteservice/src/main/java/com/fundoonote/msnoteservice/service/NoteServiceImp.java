@@ -170,6 +170,8 @@ public class NoteServiceImp implements INoteService {
 		}
 		label.setUserId(loggedInUserId);
 		labelDao.save(label);
+		jmsService.addToQueue(label, OperationType.SAVE);
+
 	}
 
 	@Override
@@ -185,6 +187,8 @@ public class NoteServiceImp implements INoteService {
 		Label labelFromDB = labelDao.getOne(label.getLabelId());
 		labelFromDB.setName(label.getName());
 		labelDao.save(labelFromDB);
+		jmsService.addToQueue(labelFromDB, OperationType.UPDATE);
+
 	}
 
 	@Override
@@ -201,6 +205,7 @@ public class NoteServiceImp implements INoteService {
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		}
 		labelDao.deleteById(labelId);
+		jmsService.addToQueue(oldLabel.get(), OperationType.DELETE);
 	}
 
 	@Override
@@ -226,6 +231,8 @@ public class NoteServiceImp implements INoteService {
 		labels.add(label.get());
 		notePreferences.setLabels(labels);
 		notePrefDao.save(notePreferences);
+		jmsService.addToQueue(notePreferences, OperationType.SAVE);
+
 	}
 
 	@Override
@@ -249,6 +256,8 @@ public class NoteServiceImp implements INoteService {
 		}
 		notePreferences.setLabels(labels);
 		notePrefDao.save(notePreferences);
+		jmsService.addToQueue(notePreferences, OperationType.SAVE);
+
 	}
 
 	@Override
@@ -261,6 +270,8 @@ public class NoteServiceImp implements INoteService {
 		s3Service.deleteFileFromS3(key);
 		note.get().setImageUrl(null);
 		noteDao.save(note.get());
+		jmsService.addToQueue(note.get(), OperationType.SAVE);
+
 	}
 
 	@Override
@@ -276,6 +287,8 @@ public class NoteServiceImp implements INoteService {
 		}
 		note.get().setImageUrl(imageUrl);
 		noteDao.save(note.get());
+		jmsService.addToQueue(note.get(), OperationType.SAVE);
+
 	}
 
 	@Override
@@ -295,6 +308,8 @@ public class NoteServiceImp implements INoteService {
 		collaboration.setSharedById(loggedInUserId);
 		collaboration.setSharedId(sharingUserEmail);
 		collaboratorDao.save(collaboration);
+		jmsService.addToQueue(collaboration, OperationType.SAVE);
+
 	}
 
 	@Override
@@ -306,6 +321,8 @@ public class NoteServiceImp implements INoteService {
 		collaboratorDao.deleteByNoteAndSharedId(note, sharedUserId);
 		note.setLastUpdated(new Date());
 		noteDao.save(note);
+		jmsService.addToQueue(note, OperationType.SAVE);
+
 	}
 
 	@Override
@@ -322,6 +339,8 @@ public class NoteServiceImp implements INoteService {
 		notePreferences.setStatus(status);
 		notePreferences.setUserId(loggedInUserId);
 		notePrefDao.save(notePreferences);
+		jmsService.addToQueue(notePreferences, OperationType.SAVE);
+
 
 	}
 
@@ -336,6 +355,8 @@ public class NoteServiceImp implements INoteService {
 		notePreferences.setPin(isPinned);
 		notePreferences.setUserId(loggedInUserId);
 		notePrefDao.save(notePreferences);
+		jmsService.addToQueue(notePreferences, OperationType.SAVE);
+
 	}
 
 	@Override
@@ -352,6 +373,7 @@ public class NoteServiceImp implements INoteService {
 		notePreferences.setStatus(status);
 		notePreferences.setUserId(loggedInUserId);
 		notePrefDao.save(notePreferences);
+		jmsService.addToQueue(notePreferences, OperationType.SAVE);
 
 	}
 
