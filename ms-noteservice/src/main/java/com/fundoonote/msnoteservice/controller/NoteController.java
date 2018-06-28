@@ -187,11 +187,11 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/collaborate", method = RequestMethod.POST)
-	ResponseEntity<Response> collaborate(@RequestParam Integer sharingUserEmail, @RequestParam int noteId,
+	ResponseEntity<Response> collaborate(@RequestParam Integer sharedUserId, @RequestParam int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
-		noteService.collaborate(sharingUserEmail, noteId, loggedInUserId);
+		noteService.collaborate(sharedUserId, noteId, loggedInUserId);
 		response.setResponseMessage("Note is Collaborated Successfully");
 		response.setStatusCode(200);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
