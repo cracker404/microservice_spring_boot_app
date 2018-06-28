@@ -7,10 +7,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +21,7 @@ import com.fundoonote.msnoteservice.exception.NSException;
 import com.fundoonote.msnoteservice.messages.IJmsService;
 import com.fundoonote.msnoteservice.messages.OperationType;
 import com.fundoonote.msnoteservice.model.Collaboration;
+import com.fundoonote.msnoteservice.model.ESNotePreferences;
 import com.fundoonote.msnoteservice.model.Label;
 import com.fundoonote.msnoteservice.model.Note;
 import com.fundoonote.msnoteservice.model.NoteDto;
@@ -30,18 +30,10 @@ import com.fundoonote.msnoteservice.model.Status;
 
 /**
  * <p>
- * This is a service layer for Note With
- * {@link Service @Service}, we have added all general purpose
- * methods here those method will be invoked from NoteController 
- * by passing appropriate parameters and will return a required response.
- * </p>
- * <p>
- * The methods are self explanatory we have used <b>{@code @RestController}</b>
- * annotation to point incoming requests to this class, and
- * <b>{@link ResponseBody @ResponseBody}</b> annotation to point incoming
- * requests to appropriate Methods. <b>{@link RequestBody @RequestBody}</b>
- * annotation is used to accept data with request in JSON form and Spring
- * ResponseEntity is used to return JSON as response to incoming request.
+ * This is a service layer for Note With {@link Service @Service}, we have added
+ * all general purpose methods here those method will be invoked from
+ * NoteController by passing appropriate parameters and will return a required
+ * response.
  * </p>
  * 
  * @version 1
@@ -70,7 +62,7 @@ public class NoteServiceImp implements INoteService {
 	private S3Service s3Service;
 
 	@Override
-	public void saveNote(NoteDto noteDto, Integer loggedInUserId) throws NSException {
+	public void saveNote(@RequestBody NoteDto noteDto, Integer loggedInUserId) throws NSException {
 		String imageUrl = null;
 		if (noteDto.getImage() != null) {
 			imageUrl = s3Service.saveImageToS3(noteDto.getNote().getNoteId(), noteDto.getImage());
@@ -79,7 +71,7 @@ public class NoteServiceImp implements INoteService {
 		note.setImageUrl(imageUrl);
 		note.setUserId(loggedInUserId);
 		noteDao.save(note);
-		jmsService.addToQueue(note, OperationType.SAVE);
+		jmsService.addToQueue(note, OperationType.SAVE, note.getNoteId());
 
 		NotePreferences notePref = noteDto.getNotePreferences();
 		saveNotePrefFromNote(notePref, note, loggedInUserId);
@@ -91,7 +83,7 @@ public class NoteServiceImp implements INoteService {
 			collaboration.setSharedById(loggedInUserId);
 			collaboration.setSharedId(id);
 			collaboratorDao.save(collaboration);
-			jmsService.addToQueue(collaboration, OperationType.SAVE);
+			jmsService.addToQueue(collaboration, OperationType.SAVE, collaboration.getId());
 			saveNotePrefFromNote(new NotePreferences(), note, id);
 		}
 	}
@@ -100,7 +92,7 @@ public class NoteServiceImp implements INoteService {
 		notePreferences.setNote(note);
 		notePreferences.setUserId(userId);
 		notePrefDao.save(notePreferences);
-		jmsService.addToQueue(notePreferences, OperationType.SAVE);
+		jmsService.addToQueue(notePreferences, OperationType.SAVE, notePreferences.getNotePreId());
 	}
 
 	@Override
@@ -113,7 +105,7 @@ public class NoteServiceImp implements INoteService {
 
 		note.setLastUpdated(new Date());
 		noteDao.save(note);
-		jmsService.addToQueue(note, OperationType.UPDATE);
+		jmsService.addToQueue(note, OperationType.UPDATE, note.getNoteId());
 	}
 
 	@Override
@@ -125,19 +117,23 @@ public class NoteServiceImp implements INoteService {
 		}
 
 		notePrefDao.save(notePref);
-		jmsService.addToQueue(notePref, OperationType.UPDATE);
+		ESNotePreferences esNotePreferences = new ESNotePreferences(notePref);
+		jmsService.addToQueue(esNotePreferences, OperationType.UPDATE, notePref.getNotePreId());
 	}
 
 	@Override
-	public void deleteNote(long noteId, Integer loggedInUserId) throws NSException {
+	public void deleteNote(int noteId, Integer loggedInUserId) throws NSException {
 
-		Optional<Note> note = noteDao.findById(noteId);
-		if (!note.get().getUserId().equals(loggedInUserId)) {
+		Optional<Note> optional = noteDao.findById(noteId);
+		Note note = optional.get();
+		if (!note.getUserId().equals(loggedInUserId)) {
 			throw new NSException(111, new Object[] { "delete note :-" });
 		}
 		noteDao.deleteById(noteId);
-		notePrefDao.deleteByNote(note.get());
-		jmsService.addToQueue(noteId, OperationType.DELETE);
+		jmsService.addToQueue(note, OperationType.DELETE, noteId);
+
+		NotePreferences notePreferences = notePrefDao.deleteByNoteAndUserId(note, loggedInUserId);
+		jmsService.addToQueue(notePreferences, OperationType.DELETE, notePreferences.getNotePreId());
 	}
 
 	@Override
@@ -155,7 +151,7 @@ public class NoteServiceImp implements INoteService {
 		return result;
 	}
 
-	private Set<Integer> getAllCollabUserByNote(long noteId) {
+	private Set<Integer> getAllCollabUserByNote(int noteId) {
 		Note note = new Note();
 		note.setNoteId(noteId);
 		List<Collaboration> collaborators = collaboratorDao.getByNote(note);
@@ -165,19 +161,16 @@ public class NoteServiceImp implements INoteService {
 
 	@Override
 	public void saveLabel(Label label, Integer loggedInUserId) throws NSException {
-		//Label OldLabel = labelDao.findByNameAndUserId(label.getName(), loggedInUserId);
-		if (labelDao.findByNameAndUserId(label.getName(), loggedInUserId)) {
+		if (!(labelDao.findByNameAndUserId(label.getName(), loggedInUserId))) {
 			throw new NSException(115, new Object[] { label.getName() });
 		}
 		label.setUserId(loggedInUserId);
 		labelDao.save(label);
-		jmsService.addToQueue(label, OperationType.SAVE);
-
+		jmsService.addToQueue(label, OperationType.SAVE, label.getLabelId());
 	}
 
 	@Override
 	public void renameLabel(Label label, Integer loggedInUserId) throws NSException {
-
 		Optional<Label> oldLabel = labelDao.findById(label.getLabelId());
 		if (!oldLabel.isPresent()) {
 			throw new NSException(114, new Object[] { "label.getLabelId()" });
@@ -188,113 +181,115 @@ public class NoteServiceImp implements INoteService {
 		Label labelFromDB = labelDao.getOne(label.getLabelId());
 		labelFromDB.setName(label.getName());
 		labelDao.save(labelFromDB);
-		jmsService.addToQueue(labelFromDB, OperationType.UPDATE);
-
+		jmsService.addToQueue(label, OperationType.UPDATE, label.getLabelId());
 	}
 
 	@Override
 	public List<Label> getLabels(Integer userId) {
-		List<Label> labels = labelDao.getAllLabelsByUserId(userId);
-		return labels;
+		return labelDao.getAllLabelsByUserId(userId);
 	}
 
 	@Override
 	public void deleteLabel(int labelId, Integer loggedInUserId) throws NSException {
+		Optional<Label> optional = labelDao.findById(labelId);
 
-		Optional<Label> oldLabel = labelDao.findById(labelId);
-		if (!oldLabel.get().getUserId().equals(loggedInUserId)) {
+		if (optional.isPresent())
+			throw new NSException(111, new Object[] { "Delete Label :-" });
+		Label label = optional.get();
+		if (label.getUserId() == loggedInUserId) {
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		}
 		labelDao.deleteById(labelId);
-		jmsService.addToQueue(oldLabel.get(), OperationType.DELETE);
+		jmsService.addToQueue(label, OperationType.DELETE, label.getLabelId());
 	}
 
+	/*
+	 * @Override public void addLabelToNote(int noteId, int labelId, Integer
+	 * loggedInUserId) throws NSException { NotePreferences notePreferences =
+	 * notePrefDao.getByNoteAndUserId(new Note(noteId), loggedInUserId);
+	 * Optional<Label> label = labelDao.findById(labelId);
+	 * 
+	 * if (!label.isPresent()) { throw new NSException(114, new Object[] {
+	 * "add Label to note :-" }); }
+	 * 
+	 * Set<Label> labels = notePreferences.getLabels(); labels.add(label.get());
+	 * notePreferences.setLabels(labels); notePrefDao.save(notePreferences);
+	 * jmsService.addToQueue(notePreferences, OperationType.SAVE,
+	 * notePreferences.getNotePreId());
+	 * 
+	 * }
+	 * 
+	 * @Override
+	 * 
+	 * @Transactional public void removeLabelFromNote(Label label, int noteId,
+	 * Integer loggedInUserId) throws NSException { NotePreferences notePreferences
+	 * = notePrefDao.getByNoteAndUserId(new Note(noteId), loggedInUserId);
+	 * Set<Label> labels = notePreferences.getLabels(); for (Label notePrefLabel :
+	 * labels) { if (notePrefLabel.getLabelId() == label.getLabelId()) {
+	 * if(labels.remove(label)) { notePreferences.setLabels(labels);
+	 * notePrefDao.save(notePreferences); jmsService.addToQueue(notePreferences,
+	 * OperationType.SAVE, notePreferences.getNotePreId()); break; } } } }
+	 */
+
 	@Override
-	public void addLabelToNote(long noteId, int labelId, Integer loggedInUserId) throws NSException {
-
-	/*	Optional<Note> note = noteDao.findById(noteId);
-		if (!note.isPresent()) {
-			throw new NSException(124, new Object[] { "add Label to note" });
-		}
-		if (!note.get().getUserId().equals(loggedInUserId)) {
-			throw new NSException(111, new Object[] { "add Label to note :-" });
-		}*/
-		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(noteDao.getOne(noteId), loggedInUserId);
-		Optional<Label> label = labelDao.findById(labelId);
-		if (!label.isPresent()) {
-			throw new NSException(114, new Object[] { "add Label to note :-" });
-		}
-		if (!label.get().getUserId().equals(loggedInUserId)) {
-			throw new NSException(111, new Object[] { "add Label to note :-" });
-		}
-
-		Set<Label> labels = new HashSet<Label>();
-		labels.add(label.get());
-		notePreferences.setLabels(labels);
-		notePrefDao.save(notePreferences);
-		jmsService.addToQueue(notePreferences, OperationType.SAVE);
-
-	}
-
-	@Override
-	@Transactional
-	public void removeLabelFromNote(Label label, long noteId, Integer loggedInUserId) throws NSException {
-		Optional<Note> note = noteDao.findById(noteId);
-		if (note == null) {
-			throw new NSException(124, new Object[] { "add Label to note" });
-		}
-		if (!note.get().getUserId().equals(loggedInUserId)) {
-			throw new NSException(111, new Object[] { "add Label to note :-" });
-		}
-		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(noteDao.getOne(noteId), loggedInUserId);
+	public void addOrRemoveLabelFromNote(int noteId, int labelId, Integer loggedInUserId) throws NSException {
+		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(new Note(noteId), loggedInUserId);
+		Optional<Label> optional = labelDao.findById(labelId);
+		Label label = optional.get();
 		Set<Label> labels = notePreferences.getLabels();
-		if (!labels.isEmpty()) {
-			for (Label notePrefLabel : labels) {
-				if (notePrefLabel.getLabelId() == label.getLabelId())
-					labels.remove(label);
-				System.out.println(labels.size() + "" + labels.isEmpty());
-			}
+		if (!labels.isEmpty() && labels.contains(label)) {
+			labels.remove(label);
+			notePreferences.setLabels(labels);
+			notePrefDao.save(notePreferences);
+			ESNotePreferences esNotePreference = new ESNotePreferences(notePreferences);
+			jmsService.addToQueue(esNotePreference, OperationType.UPDATE, notePreferences.getNotePreId());
+			return;
 		}
+
+		labels.add(label);
 		notePreferences.setLabels(labels);
 		notePrefDao.save(notePreferences);
-		jmsService.addToQueue(notePreferences, OperationType.SAVE);
-
+		ESNotePreferences esNotePreference = new ESNotePreferences(notePreferences);
+		jmsService.addToQueue(esNotePreference, OperationType.UPDATE, notePreferences.getNotePreId());
 	}
 
 	@Override
-	public void deleteImage(Integer loggedInUserId, long noteId, String key) throws NSException {
+	public void deleteImage(Integer loggedInUserId, int noteId, String key) throws NSException {
 
-		Optional<Note> note = noteDao.findById(noteId);
-		if (!(note.get().getUserId() == loggedInUserId)) {
+		Optional<Note> optional = noteDao.findById(noteId);
+		Note note = optional.get();
+		if (!(note.getUserId() == loggedInUserId)) {
 			throw new NSException(101, new Object[] { "note.getId()" });
 		}
 		s3Service.deleteFileFromS3(key);
-		note.get().setImageUrl(null);
-		noteDao.save(note.get());
-		jmsService.addToQueue(note.get(), OperationType.SAVE);
-
+		note.setImageUrl(null);
+		noteDao.save(note);
+		jmsService.addToQueue(note, OperationType.SAVE, note.getNoteId());
 	}
 
 	@Override
-	public void saveImage(MultipartFile image, long noteId, Integer loggedInUserId) throws NSException {
+	public void saveImage(MultipartFile image, int noteId, Integer loggedInUserId) throws NSException {
 
-		Optional<Note> note = noteDao.findById(noteId);
-		if (!(note.get().getUserId() == loggedInUserId)) {
+		Optional<Note> optional = noteDao.findById(noteId);
+		Note note = optional.get();
+		if (!(note.getUserId() == loggedInUserId)) {
 			throw new NSException(101, new Object[] { "" });
 		}
 		String imageUrl = s3Service.saveImageToS3(noteId, image);
 		if (imageUrl == null) {
 			throw new NSException(108, new Object[] { "" });
 		}
-		note.get().setImageUrl(imageUrl);
-		noteDao.save(note.get());
+		note.setImageUrl(imageUrl);
+		noteDao.save(note);
+		jmsService.addToQueue(note, OperationType.SAVE, note.getNoteId());
 
 	}
 
 	@Override
-	public void collaborate(Integer sharingUserEmail, long noteId, Integer loggedInUserId) throws NSException {
+	public void collaborate(Integer sharingUserEmail, int noteId, Integer loggedInUserId) throws NSException {
 
-		Note note = noteDao.getOne(noteId);
+		Optional<Note> optional = noteDao.findById(noteId);
+		Note note = optional.get();
 		if (!(note.getUserId() == loggedInUserId)) {
 			throw new NSException(101, new Object[] { "" });
 		}
@@ -308,72 +303,88 @@ public class NoteServiceImp implements INoteService {
 		collaboration.setSharedById(loggedInUserId);
 		collaboration.setSharedId(sharingUserEmail);
 		collaboratorDao.save(collaboration);
-
+		jmsService.addToQueue(collaboration, OperationType.SAVE, collaboration.getId());
+		saveNotePrefFromNote(new NotePreferences(), note, sharingUserEmail);
 	}
 
+	@Transactional
 	@Override
-	public void removeCollaborator(Integer sharedUserId, long noteId, Integer loggedInUserId) throws NSException {
-		Note note = noteDao.getOne(noteId);
-		if (note.getUserId() == loggedInUserId) {
-			throw new NSException(101, new Object[] { "" });
+	public void removeCollaborator(Integer sharedUserId, int noteId, Integer loggedInUserId) throws NSException {
+		Optional<Note> optional = noteDao.findById(noteId);
+
+		Note note = optional.get();
+		if (!optional.isPresent() && !(note.getUserId() == loggedInUserId)) {
+			throw new NSException(111, new Object[] { "" });
 		}
-		collaboratorDao.deleteByNoteAndSharedId(note, sharedUserId);
-		note.setLastUpdated(new Date());
-		noteDao.save(note);
-		notePrefDao.deleteByUserId(sharedUserId);
+		Collaboration collaborator = collaboratorDao.deleteByNoteAndSharedId(optional.get(), sharedUserId);
+		jmsService.addToQueue(collaborator, OperationType.DELETE, collaborator.getId());
+
+		NotePreferences notePreferences = notePrefDao.deleteByNoteAndUserId(note, sharedUserId);
+		jmsService.addToQueue(null, OperationType.DELETE, notePreferences.getNotePreId());
 
 	}
 
 	@Override
-	public void trashOrRestore(long notePrefId, Status status, Integer loggedInUserId) throws NSException {
+	@Transactional
+	public void trashOrRestore(int noteId, Status status, Integer loggedInUserId) throws NSException
+	{
+		if (status == Status.TRASH) 
+		{
+			List<Collaboration> collaborators = collaboratorDao.getByNote(new Note(noteId));
+			for (Collaboration collaboration : collaborators) {
+				collaboratorDao.delete(collaboration);
+				jmsService.addToQueue(collaboration, OperationType.DELETE, collaboration.getId());
+				NotePreferences notePreferences = notePrefDao.deleteByNoteAndUserId(new Note(noteId),
+						collaboration.getSharedId());
+				jmsService.addToQueue(null, OperationType.DELETE, notePreferences.getNotePreId());
+			}
+		}
 
-		Optional<NotePreferences> notePref = notePrefDao.findById(notePrefId);
-		if (!notePref.get().getUserId().equals(loggedInUserId)) {
+		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(new Note(noteId), loggedInUserId);
+		if (notePreferences == null)
 			throw new NSException(111, new Object[] { "perform trash or Restore" });
-		}
-		if (status == null) {
-			throw new NSException(123, new Object[] { "perform trash or Restore" });
-		}
-		NotePreferences notePreferences = notePref.get();
+
 		notePreferences.setStatus(status);
-		notePreferences.setUserId(loggedInUserId);
 		notePrefDao.save(notePreferences);
-		jmsService.addToQueue(notePreferences, OperationType.SAVE);
-
-
+		ESNotePreferences esNotePreferences = new ESNotePreferences(notePreferences);
+		jmsService.addToQueue(esNotePreferences, OperationType.UPDATE, notePreferences.getNotePreId());
 	}
 
 	@Override
-	public void pinOrUnpin(long notePrefId, boolean isPinned, Integer loggedInUserId) throws NSException {
+	public void pinOrUnpin(int notePrefId, boolean isPinned, Integer loggedInUserId) throws NSException {
 
-		Optional<NotePreferences> notePref = notePrefDao.findById(notePrefId);
-		if (!notePref.get().getUserId().equals(loggedInUserId)) {
+		Optional<NotePreferences> optional = notePrefDao.findById(notePrefId);
+		
+		if (!optional.isPresent()) {
 			throw new NSException(111, new Object[] { "perform pin or Unpin" });
 		}
-		NotePreferences notePreferences = notePref.get();
-		notePreferences.setPin(isPinned);
-		notePreferences.setUserId(loggedInUserId);
-		notePrefDao.save(notePreferences);
-		jmsService.addToQueue(notePreferences, OperationType.SAVE);
+		NotePreferences notePreferences = optional.get();
 
+		if(notePreferences.getUserId() != loggedInUserId) {
+			throw new NSException(111, new Object[] { "perform pin or Unpin" });
+		}
+		notePreferences.setPin(isPinned);
+		notePrefDao.save(notePreferences);
+		ESNotePreferences esNotePreferences = new ESNotePreferences(notePreferences);
+		jmsService.addToQueue(esNotePreferences, OperationType.UPDATE, notePreferences.getNotePreId());
 	}
 
 	@Override
-	public void archiveOrUnarchive(long notePrefId, Status status, Integer loggedInUserId) throws NSException {
+	public void archiveOrUnarchive(int notePrefId, Status status, Integer loggedInUserId) throws NSException {
 
-		Optional<NotePreferences> notePref = notePrefDao.findById(notePrefId);
-		if (!notePref.get().getUserId().equals(loggedInUserId)) {
+		Optional<NotePreferences> optional = notePrefDao.findById(notePrefId);
+		if(!optional.isPresent()) {
 			throw new NSException(111, new Object[] { "perform archive or Unarchive" });
 		}
-		if (status == null) {
-			throw new NSException(123, new Object[] { "perform archive or Unarchive" });
-		}
-		NotePreferences notePreferences = notePref.get();
-		notePreferences.setStatus(status);
-		notePreferences.setUserId(loggedInUserId);
-		notePrefDao.save(notePreferences);
-		jmsService.addToQueue(notePreferences, OperationType.SAVE);
+		NotePreferences notePreferences = optional.get();
 
+		if (notePreferences.getUserId() != loggedInUserId) {
+			throw new NSException(111, new Object[] { "perform archive or Unarchive" });
+		}
+		notePreferences.setStatus(status);
+		notePrefDao.save(notePreferences);
+		ESNotePreferences esNotePreferences = new ESNotePreferences(notePreferences);
+		jmsService.addToQueue(esNotePreferences, OperationType.UPDATE, notePreferences.getNotePreId());
 	}
 
 	@Override
@@ -389,5 +400,4 @@ public class NoteServiceImp implements INoteService {
 
 		return result;
 	}
-
 }

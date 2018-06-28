@@ -16,6 +16,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class NotePreferences implements Serializable {
 	
@@ -23,7 +25,7 @@ public class NotePreferences implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long notePreId;
+	private int notePreId;
 	
 	@Column
 	private Status status = Status.NONE;
@@ -41,6 +43,7 @@ public class NotePreferences implements Serializable {
 	@JoinTable(name ="NoteLabel", joinColumns=@JoinColumn(name="noteId"), inverseJoinColumns=@JoinColumn(name="labelId"))
 	private Set<Label> labels = new HashSet<Label>();
 	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="noteId")
 	private Note note;
@@ -48,10 +51,10 @@ public class NotePreferences implements Serializable {
 	@Column
 	private Integer userId;
 	
-	public long getNotePreId() {
+	public Integer getNotePreId() {
 		return notePreId;
 	}
-	public void setNotePreId(long notePreId) {
+	public void setNotePreId(int notePreId) {
 		this.notePreId = notePreId;
 	}
 	public Status getStatus() {
@@ -96,5 +99,11 @@ public class NotePreferences implements Serializable {
 	}
 	public void setUserId(Integer userId2) {
 		this.userId = userId2;
+	}
+	@Override
+	public String toString() {
+		return "NotePreferences [notePreId=" + notePreId + ", status=" + status + ", isPin=" + isPin + ", color="
+				+ color + ", remainder=" + remainder + ", labels=" + labels + ", note=" + note + ", userId=" + userId
+				+ "]";
 	}
 }

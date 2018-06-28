@@ -2,6 +2,7 @@ package com.fundoonote.msnoteservice.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -22,7 +23,7 @@ public class Note implements Serializable{
 
 	@Id
 	@GeneratedValue(strategy= GenerationType.AUTO)
-	private long noteId;
+	private int noteId;
 	
 	@Column
 	private String title;
@@ -53,10 +54,15 @@ public class Note implements Serializable{
 	@OneToMany(mappedBy="note")
 	private Set<Collaboration> collaborations;
 	
-	public long getNoteId() {
+	public Note() {}
+	
+	public Note(int noteId) {
+		this.noteId=noteId;
+	}
+	public int getNoteId() {
 		return noteId;
 	}
-	public void setNoteId(long noteId) {
+	public void setNoteId(int noteId) {
 		this.noteId = noteId;
 	}
 	public String getTitle() {
@@ -112,5 +118,11 @@ public class Note implements Serializable{
 	}
 	public void setCollaborations(Set<Collaboration> collaborations) {
 		this.collaborations = collaborations;
+	}
+	@Override
+	public String toString() {
+		return "Note [noteId=" + noteId + ", title=" + title + ", body=" + body + ", createdDate=" + createdDate
+				+ ", lastUpdated=" + lastUpdated + ", imageUrl=" + imageUrl + ", userId=" + userId + ", shareByUserId="
+				+ shareByUserId + ", notePreferences=" + notePreferences + ", collaborations=" + collaborations + "]";
 	}
 }

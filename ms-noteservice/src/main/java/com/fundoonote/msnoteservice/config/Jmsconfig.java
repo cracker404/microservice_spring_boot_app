@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 /**
@@ -25,7 +25,6 @@ import org.springframework.jms.core.JmsTemplate;
  * @since 2017-03-10
  * @author Bridgelabz
  */
-@EnableJms
 @Configuration
 @ConditionalOnExpression("'${mode}'.equals('development')")
 public class Jmsconfig 
@@ -49,13 +48,13 @@ public class Jmsconfig
 	}
 
 	@Bean
-	public ActiveMQConnectionFactory connectionFactory() 
+	public CachingConnectionFactory connectionFactory() 
 	{
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
-		connectionFactory.setPassword(brokerUserName);
-		connectionFactory.setUserName(brokerPassword);
-		connectionFactory.setTrustAllPackages(true);
-		return connectionFactory;
+		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(url);
+		factory.setPassword(brokerUserName);
+		factory.setUserName(brokerPassword);
+		factory.setTrustAllPackages(true);
+	    return new CachingConnectionFactory(factory);
 	}
 
 	@Bean

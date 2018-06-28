@@ -4,25 +4,38 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class ESNotePreferencesDto implements Serializable {
-	
+public class ESNotePreferences implements Serializable {
+
 	private static final long serialVersionUID = 1L;
+
+	public ESNotePreferences() {	}
+
+	public ESNotePreferences(NotePreferences preferences) {
+		this.color = preferences.getColor();
+		this.remainder = preferences.getRemainder();
+		this.status = preferences.getStatus();
+		this.isPin = preferences.isPin();
+		this.labelIds = preferences.getLabels().stream().map(l -> {
+			return l.getLabelId();
+		}).collect(Collectors.toSet());
+	}
 
 	private long esNotePreId;
 
 	private Status status = Status.NONE;
-	
+
 	private boolean isPin = false;
-	
+
 	private String color = "white";
-	
+
 	private Date remainder;
-	
+
 	private Set<Integer> labelIds = new HashSet<>();
 
 	private int noteId;
-	
+
 	private Integer userId;
 
 	public long getEsNotePreId() {
@@ -91,5 +104,22 @@ public class ESNotePreferencesDto implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	@Override
+	public String toString() {
+		return "ESNotePreferencesDto [esNotePreId=" + esNotePreId + ", status=" + status + ", isPin=" + isPin
+				+ ", color=" + color + ", remainder=" + remainder + ", labelIds=" + labelIds + ", noteId=" + noteId
+				+ ", userId=" + userId + "]";
+	}
+
+	public void copy(NotePreferences preferences) {
+		this.color = preferences.getColor();
+		this.remainder = preferences.getRemainder();
+		this.status = preferences.getStatus();
+		this.isPin = preferences.isPin();
+		this.labelIds = preferences.getLabels().stream().map(l -> {
+			return l.getLabelId();
+		}).collect(Collectors.toSet());
 	}
 }

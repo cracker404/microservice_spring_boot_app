@@ -1,5 +1,7 @@
 package com.fundoonote.msnoteservice.messages;
 
+import java.util.HashMap;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
@@ -11,6 +13,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fundoonote.msnoteservice.exception.NSException;
 
 
@@ -19,29 +22,34 @@ public class JmsServiceImpl implements IJmsService
 {
    @Autowired
    private JmsTemplate jmsTemplate;
+   
+   @Autowired
+   private ObjectMapper mapper;
 
    private final Logger logger = LoggerFactory.getLogger(JmsServiceImpl.class);
 
-   @SuppressWarnings("unchecked")
-   public <T> void addToQueue(T object, OperationType ot) throws NSException
+   public <T> void addToQueue(T object, OperationType ot, Object id) throws NSException
    {
       logger.info("inside Jms Service for add obj to queue");
-      JmsDto<T> dto = new JmsDto<>();
-      dto.setObject(object);
-      dto.setOperation(ot);
-      dto.setClazz((Class<T>) object.getClass());
-
-      try {
-         jmsTemplate.send(new MessageCreator() {
+      HashMap<String, Object> map = new HashMap<>();
+      
+      try 
+      {
+    	  String json = mapper.writeValueAsString(object);
+          map.put("Object", json);
+          map.put("operationType", ot.toString());
+          map.put("index", object.getClass().getSimpleName().toLowerCase());
+          map.put("id", id);
+          jmsTemplate.send(new MessageCreator() {
             @Override
             public Message createMessage(Session session) throws JMSException
             {
-               return session.createObjectMessage(dto);
+            	return session.createObjectMessage(map);
             }
          });
-      } catch (Exception e1) {
-            e1.printStackTrace();
-         }
+      } catch (Exception e) {
+        e.printStackTrace();
       }
    }
+}
 

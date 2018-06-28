@@ -15,7 +15,7 @@ public class Collaboration {
 	@Id
 	@GenericGenerator(name = "any", strategy = "increment")
 	@GeneratedValue(generator = "any")
-	private long id;
+	private int id;
 
 	@ManyToOne
 	@JoinColumn(name = "noteId")
@@ -32,7 +32,7 @@ public class Collaboration {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

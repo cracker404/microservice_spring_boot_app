@@ -33,7 +33,8 @@ import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
  */
 @Configuration
 @ConditionalOnExpression("'${mode}'.equals('production')")
-public class JMSSQSConfig {
+public class JMSSQSConfig 
+{
 	@Value("${sqs.endpoint}")
 	private String endpoint;
 
@@ -52,12 +53,14 @@ public class JMSSQSConfig {
 	@Value("${async.queue}")
 	private String queue;
 
-	public JMSSQSConfig() {
+	public JMSSQSConfig() 
+	{
 		System.out.println("Create " + getClass().getName());
 	}
 
 	@Bean
-	public AmazonSQS createSQSClient() {
+	public AmazonSQS createSQSClient() 
+	{
 		return AmazonSQSClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
 				.withRegion(region).build();
@@ -75,15 +78,16 @@ public class JMSSQSConfig {
 	 * return dmlc; }
 	 */
 	@Bean
-	public JmsTemplate createJMSTemplate() {
+	public JmsTemplate createJMSTemplate() 
+	{
 		JmsTemplate jmsTemplate = new JmsTemplate(getSQSFactory());
 		jmsTemplate.setDefaultDestinationName(queue);
 		jmsTemplate.setDeliveryPersistent(false);
-
 		return jmsTemplate;
 	}
 
-	private SQSConnectionFactory getSQSFactory() {
+	private SQSConnectionFactory getSQSFactory() 
+	{
 		AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
 				endpoint, region);
 
@@ -95,7 +99,8 @@ public class JMSSQSConfig {
 		return new SQSConnectionFactory(new ProviderConfiguration(), amazonSQS);
 	}
 
-	private final AWSCredentialsProvider awsCredentialsProvider = new AWSCredentialsProvider() {
+	private final AWSCredentialsProvider awsCredentialsProvider = new AWSCredentialsProvider() 
+	{
 		@Override
 		public AWSCredentials getCredentials() {
 			return new BasicAWSCredentials(accessKey, secretKey);

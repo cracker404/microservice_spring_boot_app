@@ -85,7 +85,7 @@ public class S3Service
       try{
          s3Client.listObjects(s3BucketName);
          boolean exists = s3Client.doesObjectExist(s3BucketName, key);
-         if(!exists){
+         if(exists){
             s3Client.deleteObject(new DeleteObjectRequest(s3BucketName, key));
          }
       }
