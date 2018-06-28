@@ -52,21 +52,6 @@ public class JMSSQSConfig
                                    .withRegion(region).build();
    }
    
-   /*@Bean
-   public <T> MessageListener msgListener()
-   {
-      return new MessageConsumer<T>();
-   }
-   @Bean
-   public DefaultMessageListenerContainer jmsListenerContainer() 
-   {
-      DefaultMessageListenerContainer dmlc = new DefaultMessageListenerContainer();
-      dmlc.setConnectionFactory(getSQSFactory());
-      dmlc.setDestinationName(queue);
-      dmlc.setMessageListener(msgListener());
-      
-      return dmlc;
-   }*/
    @Bean
    public JmsTemplate createJMSTemplate() 
    {
@@ -76,6 +61,7 @@ public class JMSSQSConfig
       
       return jmsTemplate;
    }
+   
    private SQSConnectionFactory getSQSFactory() 
    {
       AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
@@ -88,6 +74,7 @@ public class JMSSQSConfig
 
       return new SQSConnectionFactory(new ProviderConfiguration(), amazonSQS);
    }
+   
    private final AWSCredentialsProvider awsCredentialsProvider = new AWSCredentialsProvider() {
       @Override
       public AWSCredentials getCredentials()

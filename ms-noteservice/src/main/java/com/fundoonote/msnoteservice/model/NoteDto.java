@@ -39,4 +39,9 @@ public class NoteDto
 	public void setNotePreferences(NotePreferences notePreferences) {
 		this.notePreferences = notePreferences;
 	}
+	@Override
+	public String toString() {
+		return "NoteDto [note=" + note + ", image=" + image + ", collaboratorIds=" + collaboratorIds
+				+ ", notePreferences=" + notePreferences + "]";
+	}
 }
