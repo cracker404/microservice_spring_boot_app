@@ -18,7 +18,7 @@ zuul:
 
 hystrix:
   command:
-    user:
+    notes:
       execution:
         isolation:
           strategy: THREAD

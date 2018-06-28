@@ -17,87 +17,98 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 
+/**
+ * <p>
+ * This is a configuration for Note Service application With
+ * {@link Configuration @Configuration}, we have created 
+ * a bean of JMSSQS Templates and ActiveMqConnectionfactory
+ * </p>
+ * <p>
+ * The methods are invoked at the time of creating of bean
+ * </p>
+ * 
+ * @version 1
+ * @since 2017-03-10
+ * @author Bridgelabz
+ */
 @Configuration
 @ConditionalOnExpression("'${mode}'.equals('production')")
-public class JMSSQSConfig
+public class JMSSQSConfig 
 {
-   @Value("${sqs.endpoint}")
-   private String endpoint;
+	@Value("${sqs.endpoint}")
+	private String endpoint;
 
-   @Value("${sqs.access.key}")
-   private String accessKey;
+	@Value("${sqs.access.key}")
+	private String accessKey;
 
-   @Value("${sqs.secret.key}")
-   private String secretKey;
+	@Value("${sqs.secret.key}")
+	private String secretKey;
 
-   @Value("${sqs.queueUrl}")
-   private String queueUrl;
+	@Value("${sqs.queueUrl}")
+	private String queueUrl;
 
-   @Value("${sqs.region}")
-   private String region;
+	@Value("${sqs.region}")
+	private String region;
 
-   @Value("${async.queue}")
-   private String queue;
-   
-   public JMSSQSConfig()
-   {
-      System.out.println("Create "+getClass().getName());
-   }
-   @Bean
-   public AmazonSQS createSQSClient() 
-   {
-      return AmazonSQSClientBuilder.standard()
-                                   .withCredentials(new AWSStaticCredentialsProvider(
-                                         new BasicAWSCredentials(accessKey, secretKey)))
-                                   .withRegion(region).build();
-   }
-   
-   /*@Bean
-   public <T> MessageListener msgListener()
-   {
-      return new MessageConsumer<T>();
-   }
-   @Bean
-   public DefaultMessageListenerContainer jmsListenerContainer() 
-   {
-      DefaultMessageListenerContainer dmlc = new DefaultMessageListenerContainer();
-      dmlc.setConnectionFactory(getSQSFactory());
-      dmlc.setDestinationName(queue);
-      dmlc.setMessageListener(msgListener());
-      
-      return dmlc;
-   }*/
-   @Bean
-   public JmsTemplate createJMSTemplate() 
-   {
-      JmsTemplate jmsTemplate = new JmsTemplate(getSQSFactory());
-      jmsTemplate.setDefaultDestinationName(queue);
-      jmsTemplate.setDeliveryPersistent(false);
-      
-      return jmsTemplate;
-   }
-   private SQSConnectionFactory getSQSFactory() 
-   {
-      AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
-            endpoint, region);
+	@Value("${async.queue}")
+	private String queue;
 
-      AmazonSQSClientBuilder builder = AmazonSQSClient.builder();
-      builder.setEndpointConfiguration(endpointConfiguration);
-      builder.setCredentials(awsCredentialsProvider);
-      AmazonSQS amazonSQS = builder.build();
+	public JMSSQSConfig() 
+	{
+		System.out.println("Create " + getClass().getName());
+	}
 
-      return new SQSConnectionFactory(new ProviderConfiguration(), amazonSQS);
-   }
-   private final AWSCredentialsProvider awsCredentialsProvider = new AWSCredentialsProvider() {
-      @Override
-      public AWSCredentials getCredentials()
-      {
-         return new BasicAWSCredentials(accessKey, secretKey);
-      }
-      @Override
-      public void refresh()
-      {
-      }
-   };
-   
+	@Bean
+	public AmazonSQS createSQSClient() 
+	{
+		return AmazonSQSClientBuilder.standard()
+				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+				.withRegion(region).build();
+	}
+
+	/*
+	 * @Bean public <T> MessageListener msgListener() { return new
+	 * MessageConsumer<T>(); }
+	 * 
+	 * @Bean public DefaultMessageListenerContainer jmsListenerContainer() {
+	 * DefaultMessageListenerContainer dmlc = new DefaultMessageListenerContainer();
+	 * dmlc.setConnectionFactory(getSQSFactory()); dmlc.setDestinationName(queue);
+	 * dmlc.setMessageListener(msgListener());
+	 * 
+	 * return dmlc; }
+	 */
+	@Bean
+	public JmsTemplate createJMSTemplate() 
+	{
+		JmsTemplate jmsTemplate = new JmsTemplate(getSQSFactory());
+		jmsTemplate.setDefaultDestinationName(queue);
+		jmsTemplate.setDeliveryPersistent(false);
+		return jmsTemplate;
+	}
+
+	private SQSConnectionFactory getSQSFactory() 
+	{
+		AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
+				endpoint, region);
+
+		AmazonSQSClientBuilder builder = AmazonSQSClient.builder();
+		builder.setEndpointConfiguration(endpointConfiguration);
+		builder.setCredentials(awsCredentialsProvider);
+		AmazonSQS amazonSQS = builder.build();
+
+		return new SQSConnectionFactory(new ProviderConfiguration(), amazonSQS);
+	}
+
+	private final AWSCredentialsProvider awsCredentialsProvider = new AWSCredentialsProvider() 
+	{
+		@Override
+		public AWSCredentials getCredentials() {
+			return new BasicAWSCredentials(accessKey, secretKey);
+		}
+
+		@Override
+		public void refresh() {
+		}
+	};
+
 }

@@ -25,14 +25,35 @@ import com.fundoonote.msnoteservice.model.Status;
 import com.fundoonote.msnoteservice.response.Response;
 import com.fundoonote.msnoteservice.service.INoteService;
 
+/**
+ * <p>
+ * This is a Rest Controller for Note With
+ * {@link RestController @RestController}, we have added all general purpose
+ * methods here those method will accept a rest request in JSON form and will
+ * return a JSON response.
+ * </p>
+ * <p>
+ * The methods are self explanatory we have used <b>{@code @RestController}</b>
+ * annotation to point incoming requests to this class, and
+ * <b>{@link ResponseBody @ResponseBody}</b> annotation to point incoming
+ * requests to appropriate Methods. <b>{@link RequestBody @RequestBody}</b>
+ * annotation is used to accept data with request in JSON form and Spring
+ * ResponseEntity is used to return JSON as response to incoming request.
+ * </p>
+ * 
+ * @version 1
+ * @since 2017-03-10
+ * @author Bridgelabz
+ */
 @RestController
 public class NoteController 
 {
 	@Autowired
 	private INoteService noteService;
 
-	@RequestMapping(value = "/save", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<?> saveNote(@RequestBody NoteDto note,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	ResponseEntity<?> saveNote(@RequestBody NoteDto note,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException 
+	{
 		Response response = new Response();
 		noteService.saveNote(note, loggedInUserId);
 		response.setStatusCode(200);
@@ -50,13 +71,13 @@ public class NoteController
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/updateNotePref", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/updatenotepref", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Response> updateNotePref(@RequestBody NotePreferences notePref, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException{
 
 		Response response = new Response();
 		noteService.updatenotePref(notePref, loggedInUserId);
 		response.setStatusCode(200);
-		response.setResponseMessage("Note Preferences added...");
+		response.setResponseMessage("Note Preferences updated...");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -111,7 +132,7 @@ public class NoteController
 
 	}
 
-	@RequestMapping(value = "/label/addlabel", method = RequestMethod.POST)
+	@RequestMapping(value = "/label/addlabeltonote", method = RequestMethod.POST)
 	ResponseEntity<Response> addLabel(@RequestHeader int noteId, @RequestHeader int labelId,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
@@ -121,11 +142,13 @@ public class NoteController
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/label/removeLabelFromNote", method = RequestMethod.POST)
+	@RequestMapping(value = "/label/removelabelfromnote", method = RequestMethod.POST)
 	ResponseEntity<Response> saveLabelFromNote(@RequestBody Label label, @RequestHeader int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
+		response.setResponseMessage("Label removed from note succesfully..!!");
+		response.setStatusCode(200);
 		noteService.removeLabelFromNote(label, noteId, loggedInUserId);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
@@ -162,7 +185,7 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/removecollaborate", method = RequestMethod.DELETE)
-	ResponseEntity<Response> removeCollaborate(@RequestParam Integer sharedUserId, @RequestParam long noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> removeCollaborate(@RequestParam Integer sharedUserId, @RequestParam int noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.removeCollaborator(sharedUserId, noteId, loggedInUserId);
@@ -172,7 +195,7 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/pinorunpin", method = RequestMethod.PUT)
-	ResponseEntity<Response> pinOrUnpin(@RequestHeader long notePrefId, @RequestHeader boolean isPinned,
+	ResponseEntity<Response> pinOrUnpin(@RequestHeader int notePrefId, @RequestHeader boolean isPinned,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
@@ -183,7 +206,7 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/archiveorunarchive", method = RequestMethod.PUT)
-	ResponseEntity<Response> archiveOrUnarchive(@RequestHeader long notePrefId, @RequestHeader Status status,
+	ResponseEntity<Response> archiveOrUnarchive(@RequestHeader int notePrefId, @RequestHeader Status status,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
@@ -194,7 +217,7 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/trashorrestore", method = RequestMethod.PUT)
-	ResponseEntity<Response> trashOrRestore(@RequestHeader long notePrefId, @RequestHeader Status status,
+	ResponseEntity<Response> trashOrRestore(@RequestHeader int notePrefId, @RequestHeader Status status,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
@@ -202,5 +225,11 @@ public class NoteController
 		response.setStatusCode(200);
 		response.setResponseMessage("data updated successfully");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/getnotebystatus", method = RequestMethod.GET)
+	ResponseEntity<List<NoteDto>> getNoteByStatus(@RequestHeader(name="userId") Integer loggedInUserId, @RequestHeader Status status){
+		List<NoteDto> noteDto = noteService.getNoteByStatus(status, loggedInUserId);
+		return new ResponseEntity<List<NoteDto>>(noteDto, HttpStatus.OK);
 	}
 }

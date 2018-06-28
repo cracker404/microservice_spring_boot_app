@@ -7,10 +7,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
 
-@EnableJms
+/**
+ * <p>
+ * This is a configuration for Note Service application With
+ * {@link Configuration @Configuration}, {@link EnableJMS @EnableJMS},
+ *  we have created a bean of JMS Templates and 
+ *  ActiveMqConnectionfactory
+ * </p>
+ * <p>
+ * The methods are invoked at the time of creating of bean
+ * </p>
+ * 
+ * @version 1
+ * @since 2017-03-10
+ * @author Bridgelabz
+ */
 @Configuration
 @ConditionalOnExpression("'${mode}'.equals('development')")
 public class Jmsconfig 
@@ -30,17 +44,17 @@ public class Jmsconfig
 	@Bean
 	public Queue queue() 
 	{
-		return new ActiveMQQueue("queue");
+		return new ActiveMQQueue(queue);
 	}
 
 	@Bean
-	public ActiveMQConnectionFactory connectionFactory() 
+	public CachingConnectionFactory connectionFactory() 
 	{
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
-		connectionFactory.setPassword(brokerUserName);
-		connectionFactory.setUserName(brokerPassword);
-		connectionFactory.setTrustAllPackages(true);
-		return connectionFactory;
+		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(url);
+		factory.setPassword(brokerUserName);
+		factory.setUserName(brokerPassword);
+		factory.setTrustAllPackages(true);
+	    return new CachingConnectionFactory(factory);
 	}
 
 	@Bean

@@ -9,6 +9,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.fundoonote.msnoteservice.response.Response;
 
+/**
+ * <p>
+ * This is a class for NoteService Exception which contains methods 
+ * for handling the exceptions globally
+ * </p>
+ * 
+ * @version 1
+ * @since 2017-03-10
+ * @author Bridgelabz
+ */
 @ControllerAdvice
 public class NSExceptionHandler {
 
