@@ -175,7 +175,6 @@ public class NoteServiceImp implements INoteService {
 		label.setUserId(loggedInUserId);
 		labelDao.save(label);
 		jmsService.addToQueue(label, OperationType.SAVE, label.getLabelId());
-		
 	}
 
 	@Override
@@ -203,11 +202,16 @@ public class NoteServiceImp implements INoteService {
 	@Override
 	public void deleteLabel(int labelId, Integer loggedInUserId) throws NSException 
 	{
-		Optional<Label> oldLabel = labelDao.findById(labelId);
-		if (!oldLabel.get().getUserId().equals(loggedInUserId)) {
+		Optional<Label> optional = labelDao.findById(labelId);
+		
+		if(optional.isPresent())
+			throw new NSException(111, new Object[] { "Delete Label :-" });
+		Label label = optional.get();
+		if (label.getUserId() == loggedInUserId) {
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		}
 		labelDao.deleteById(labelId);
+		jmsService.addToQueue(label, OperationType.DELETE, label.getLabelId());
 	}
 
 	@Override
@@ -256,6 +260,7 @@ public class NoteServiceImp implements INoteService {
 		}
 		notePreferences.setLabels(labels);
 		notePrefDao.save(notePreferences);
+
 	}
 
 	@Override
@@ -365,7 +370,6 @@ public class NoteServiceImp implements INoteService {
 		notePreferences.setStatus(status);
 		notePreferences.setUserId(loggedInUserId);
 		notePrefDao.save(notePreferences);
-
 	}
 
 	@Override
