@@ -31,9 +31,11 @@ public interface INoteService {
 
 	void deleteLabel(int labelId, Integer loggedInUserId) throws NSException;
 
-	void addLabelToNote(int noteId, int labelId, Integer loggedInUserId) throws NSException;
+	//void addLabelToNote(int noteId, int labelId, Integer loggedInUserId) throws NSException;
 
-	void removeLabelFromNote(Label label, int noteId, Integer loggedInUserId) throws NSException;
+	//void removeLabelFromNote(Label label, int noteId, Integer loggedInUserId) throws NSException;
+	
+	void addOrRemoveLabelFromNote(int noteId, int labelId, Integer loggedInUserId) throws NSException;
 
 	void saveImage(MultipartFile image, int noteId, Integer loggedInUserId) throws NSException;
 
@@ -47,7 +49,7 @@ public interface INoteService {
 
 	void archiveOrUnarchive(int notePrefId, Status status, Integer loggedInUserId) throws NSException;
 
-	void trashOrRestore(int notePrefId, Status status, Integer loggedInUserId) throws NSException;
+	void trashOrRestore(int noteId, Status status, Integer loggedInUserId) throws NSException;
 	
 	List<NoteDto> getNoteByStatus(Status status, Integer loggedInUserId);
 }

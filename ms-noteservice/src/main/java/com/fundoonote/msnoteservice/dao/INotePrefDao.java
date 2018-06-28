@@ -1,6 +1,7 @@
 package com.fundoonote.msnoteservice.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -22,10 +23,18 @@ public interface INotePrefDao extends JpaRepository<NotePreferences, Integer> {
 	List<NotePreferences> getAllNotePreferenceByUserId(@Param("userId")Integer loggedInUser);
 
 	@Transactional
-	@Query(value = "SELECT nf FROM NotePreferences nf WHERE nf.note = :note")
-	NotePreferences getByNote(@Param("note")Note note);
+	@Query(value = "SELECT nf FROM NotePreferences nf WHERE nf.note = :note and nf.userId = :userId")
+	NotePreferences getByNoteAndUserId(@Param("note")Note note, @Param("userId") Integer userId);
 
 	@Transactional
 	@Modifying
 	List<NotePreferences> getAllNotePreferenceByUserIdAndStatus(Integer loggedInUser, Status status);
+
+	@Transactional
+	@Modifying
+	void deleteByUserId(Integer loggedInUserId);
+
+	NotePreferences deleteByNoteAndUserId(Note note, Integer loggedInUserId);
+
+	Optional<NotePreferences> findByNote(Note note);
 }

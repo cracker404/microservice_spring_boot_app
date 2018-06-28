@@ -16,6 +16,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class NotePreferences implements Serializable {
 	
@@ -41,6 +43,7 @@ public class NotePreferences implements Serializable {
 	@JoinTable(name ="NoteLabel", joinColumns=@JoinColumn(name="noteId"), inverseJoinColumns=@JoinColumn(name="labelId"))
 	private Set<Label> labels = new HashSet<Label>();
 	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="noteId")
 	private Note note;

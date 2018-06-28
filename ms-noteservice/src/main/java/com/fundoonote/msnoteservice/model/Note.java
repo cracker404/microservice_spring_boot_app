@@ -2,6 +2,7 @@ package com.fundoonote.msnoteservice.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -53,6 +54,11 @@ public class Note implements Serializable{
 	@OneToMany(mappedBy="note")
 	private Set<Collaboration> collaborations;
 	
+	public Note() {}
+	
+	public Note(int noteId) {
+		this.noteId=noteId;
+	}
 	public int getNoteId() {
 		return noteId;
 	}

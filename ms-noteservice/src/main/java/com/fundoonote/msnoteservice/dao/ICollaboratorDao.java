@@ -14,9 +14,8 @@ import com.fundoonote.msnoteservice.model.Note;
 @Repository
 public interface ICollaboratorDao extends CrudRepository<Collaboration, Long> {
 	
-	@Transactional
 	@Modifying
-	void deleteByNoteAndSharedId(Note note, Integer sharedId);
+	Collaboration deleteByNoteAndSharedId(Note note, Integer sharedId);
 
 	List<Collaboration> getByNote(Note noteId);
 
