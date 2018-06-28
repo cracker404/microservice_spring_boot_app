@@ -322,7 +322,7 @@ public class NoteServiceImp implements INoteService {
 		if (!optional.isPresent()) {
 			throw new NSException(111, new Object[] { "perform remove collaboration" });
 		}
-		if(note.getUserId() == sharedUserId)
+		if(note.getUserId() != sharedUserId)
 		{
 			throw new NSException(111, new Object[] { "perform remove collaboration" });
 		}
