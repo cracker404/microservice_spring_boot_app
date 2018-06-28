@@ -204,10 +204,10 @@ public class NoteServiceImp implements INoteService {
 	{
 		Optional<Label> optional = labelDao.findById(labelId);
 		
-		if(optional.isPresent())
+		if(!optional.isPresent())
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		Label label = optional.get();
-		if (label.getUserId() == loggedInUserId) {
+		if (label.getUserId() != loggedInUserId) {
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		}
 		labelDao.deleteById(labelId);
