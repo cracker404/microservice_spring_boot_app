@@ -28,4 +28,7 @@ public interface INotePrefDao extends JpaRepository<NotePreferences, Integer> {
 	@Transactional
 	@Modifying
 	List<NotePreferences> getAllNotePreferenceByUserIdAndStatus(Integer loggedInUser, Status status);
+
+	//@Query(value= "delete from NotePreferences where nf.note=:note and nf.userId=:loggedInUser")
+	NotePreferences deleteByNoteAndUserId(Note note, Integer loggedInUser);
 }

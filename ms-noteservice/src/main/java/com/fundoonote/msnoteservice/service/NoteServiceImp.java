@@ -133,12 +133,18 @@ public class NoteServiceImp implements INoteService {
 	@Override
 	public void deleteNote(int noteId, Integer loggedInUserId) throws NSException {
 
-		Optional<Note> note = noteDao.findById(noteId);
-		if (!note.get().getUserId().equals(loggedInUserId)) {
+		Optional<Note> optional = noteDao.findById(noteId);
+		if(!optional.isPresent())
+			throw new NSException(111, new Object[] { "delete note :-" });
+		Note note = optional.get();
+		if (note.getUserId()==loggedInUserId) {
 			throw new NSException(111, new Object[] { "delete note :-" });
 		}
 		noteDao.deleteById(noteId);
-		jmsService.addToQueue(noteId, OperationType.DELETE, noteId);
+		jmsService.addToQueue(note, OperationType.DELETE, noteId);
+		
+		NotePreferences preferences = notePrefDao.deleteByNoteAndUserId(note, loggedInUserId);
+		jmsService.addToQueue(preferences, OperationType.DELETE, preferences.getNotePreId());
 	}
 
 	@Override
@@ -156,7 +162,8 @@ public class NoteServiceImp implements INoteService {
 		return result;
 	}
 
-	private Set<Integer> getAllCollabUserByNote(int noteId) {
+	private Set<Integer> getAllCollabUserByNote(int noteId) 
+	{
 		Note note = new Note();
 		note.setNoteId(noteId);
 		List<Collaboration> collaborators = collaboratorDao.getByNote(note);
@@ -211,6 +218,7 @@ public class NoteServiceImp implements INoteService {
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		}
 		labelDao.deleteById(labelId);
+		
 		jmsService.addToQueue(label, OperationType.DELETE, label.getLabelId());
 	}
 
