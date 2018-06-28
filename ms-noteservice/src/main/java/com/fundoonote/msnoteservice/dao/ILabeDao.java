@@ -15,8 +15,8 @@ public interface ILabeDao extends JpaRepository<Label, Integer> {
 	@Query(value = "SELECT nf FROM Label nf WHERE nf.userId = :userId")
 	List<Label> getAllLabelsByUserId(@Param("userId") Integer userId);
 
-	@Query("SELECT l FROM Label l WHERE l.name = :name and l.userId=:userId")
-	Label findByNameAndUserId(@Param("name")String name, @Param("userId") Integer loggedInUserId);
+	@Query("SELECT COUNT(l)>0 FROM Label l WHERE l.name = :name and l.userId=:userId")
+	boolean findByNameAndUserId(@Param("name")String name, @Param("userId") Integer loggedInUserId);
 
 
 }

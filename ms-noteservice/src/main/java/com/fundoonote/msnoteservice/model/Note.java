@@ -53,6 +53,11 @@ public class Note implements Serializable{
 	@OneToMany(mappedBy="note")
 	private Set<Collaboration> collaborations;
 	
+	public Note() {}
+	
+	public Note(int noteId) {
+		this.noteId=noteId;
+	}
 	public int getNoteId() {
 		return noteId;
 	}

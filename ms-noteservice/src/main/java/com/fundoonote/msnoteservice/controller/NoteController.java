@@ -132,7 +132,7 @@ public class NoteController
 
 	}
 
-	@RequestMapping(value = "/label/addlabeltonote", method = RequestMethod.POST)
+	/*@RequestMapping(value = "/label/addlabeltonote", method = RequestMethod.POST)
 	ResponseEntity<Response> addLabel(@RequestHeader int noteId, @RequestHeader int labelId,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
@@ -151,7 +151,20 @@ public class NoteController
 		response.setStatusCode(200);
 		noteService.removeLabelFromNote(label, noteId, loggedInUserId);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	}*/
+	
+	@RequestMapping(value = "/label/addorremovelabelfromnote", method = RequestMethod.POST)
+	ResponseEntity<Response> addOrRemoveLabelFromNote(@RequestHeader int labelId, @RequestHeader int noteId,
+			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+
+		Response response = new Response();
+		response.setResponseMessage("Label removed from note succesfully..!!");
+		response.setStatusCode(200);
+		noteService.addOrRemoveLabelFromNote(labelId, noteId, loggedInUserId);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
+	
+	
 
 	@RequestMapping(value = "/saveimage", method = RequestMethod.POST)
 	ResponseEntity<Response> saveImage(@RequestPart MultipartFile image, int noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
@@ -174,11 +187,11 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/collaborate", method = RequestMethod.POST)
-	ResponseEntity<Response> collaborate(@RequestParam Integer sharingUserEmail, @RequestParam int noteId,
+	ResponseEntity<Response> collaborate(@RequestParam Integer sharedUserId, @RequestParam int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
-		noteService.collaborate(sharingUserEmail, noteId, loggedInUserId);
+		noteService.collaborate(sharedUserId, noteId, loggedInUserId);
 		response.setResponseMessage("Note is Collaborated Successfully");
 		response.setStatusCode(200);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
@@ -209,6 +222,9 @@ public class NoteController
 	ResponseEntity<Response> archiveOrUnarchive(@RequestHeader int notePrefId, @RequestHeader Status status,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
+		if (status != Status.ARCHIVE || status != Status.NONE) {
+			throw new NSException(123, new Object[] { "perform trash or Restore" });
+		}
 		Response response = new Response();
 		noteService.archiveOrUnarchive(notePrefId, status, loggedInUserId);
 		response.setStatusCode(200);
@@ -217,11 +233,14 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/trashorrestore", method = RequestMethod.PUT)
-	ResponseEntity<Response> trashOrRestore(@RequestHeader int notePrefId, @RequestHeader Status status,
+	ResponseEntity<Response> trashOrRestore(@RequestParam int noteId, @RequestParam Status status,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
-
+		if( status != Status.TRASH || status != Status.NONE )
+	    {
+			throw new NSException(123, new Object[] { "perform trash or Restore" });
+	    }
 		Response response = new Response();
-		noteService.trashOrRestore(notePrefId, status, loggedInUserId);
+		noteService.trashOrRestore(noteId, status, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("data updated successfully");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
