@@ -16,7 +16,7 @@ public interface ILabeDao extends JpaRepository<Label, Integer> {
 	List<Label> getAllLabelsByUserId(@Param("userId") Integer userId);
 
 	@Query("SELECT l FROM Label l WHERE l.name = :name and l.userId=:userId")
-	Label findByNameAndUserId(@Param("name")String name, @Param("userId") Integer loggedInUserId);
+	boolean findByNameAndUserId(@Param("name")String name, @Param("userId") Integer loggedInUserId);
 
 
 }

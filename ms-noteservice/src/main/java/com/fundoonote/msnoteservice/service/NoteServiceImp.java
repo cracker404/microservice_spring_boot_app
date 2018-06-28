@@ -136,6 +136,7 @@ public class NoteServiceImp implements INoteService {
 			throw new NSException(111, new Object[] { "delete note :-" });
 		}
 		noteDao.deleteById(noteId);
+		notePrefDao.deleteByNote(note.get());
 		jmsService.addToQueue(noteId, OperationType.DELETE);
 	}
 
@@ -164,8 +165,8 @@ public class NoteServiceImp implements INoteService {
 
 	@Override
 	public void saveLabel(Label label, Integer loggedInUserId) throws NSException {
-		Label OldLabel = labelDao.findByNameAndUserId(label.getName(), loggedInUserId);
-		if (OldLabel != null) {
+		//Label OldLabel = labelDao.findByNameAndUserId(label.getName(), loggedInUserId);
+		if (labelDao.findByNameAndUserId(label.getName(), loggedInUserId)) {
 			throw new NSException(115, new Object[] { label.getName() });
 		}
 		label.setUserId(loggedInUserId);
@@ -211,14 +212,14 @@ public class NoteServiceImp implements INoteService {
 	@Override
 	public void addLabelToNote(long noteId, int labelId, Integer loggedInUserId) throws NSException {
 
-		Optional<Note> note = noteDao.findById(noteId);
+	/*	Optional<Note> note = noteDao.findById(noteId);
 		if (!note.isPresent()) {
 			throw new NSException(124, new Object[] { "add Label to note" });
 		}
 		if (!note.get().getUserId().equals(loggedInUserId)) {
 			throw new NSException(111, new Object[] { "add Label to note :-" });
-		}
-		NotePreferences notePreferences = notePrefDao.getByNote(note.get());
+		}*/
+		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(noteDao.getOne(noteId), loggedInUserId);
 		Optional<Label> label = labelDao.findById(labelId);
 		if (!label.isPresent()) {
 			throw new NSException(114, new Object[] { "add Label to note :-" });
@@ -245,7 +246,7 @@ public class NoteServiceImp implements INoteService {
 		if (!note.get().getUserId().equals(loggedInUserId)) {
 			throw new NSException(111, new Object[] { "add Label to note :-" });
 		}
-		NotePreferences notePreferences = notePrefDao.getByNote(note.get());
+		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(noteDao.getOne(noteId), loggedInUserId);
 		Set<Label> labels = notePreferences.getLabels();
 		if (!labels.isEmpty()) {
 			for (Label notePrefLabel : labels) {
@@ -287,7 +288,6 @@ public class NoteServiceImp implements INoteService {
 		}
 		note.get().setImageUrl(imageUrl);
 		noteDao.save(note.get());
-		jmsService.addToQueue(note.get(), OperationType.SAVE);
 
 	}
 
@@ -308,7 +308,6 @@ public class NoteServiceImp implements INoteService {
 		collaboration.setSharedById(loggedInUserId);
 		collaboration.setSharedId(sharingUserEmail);
 		collaboratorDao.save(collaboration);
-		jmsService.addToQueue(collaboration, OperationType.SAVE);
 
 	}
 
@@ -321,7 +320,7 @@ public class NoteServiceImp implements INoteService {
 		collaboratorDao.deleteByNoteAndSharedId(note, sharedUserId);
 		note.setLastUpdated(new Date());
 		noteDao.save(note);
-		jmsService.addToQueue(note, OperationType.SAVE);
+		notePrefDao.deleteByUserId(sharedUserId);
 
 	}
 
