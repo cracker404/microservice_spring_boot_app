@@ -16,7 +16,7 @@ import com.async.service.MessageConsumer;
 @ConditionalOnExpression("'${mode}'.equals('development')")
 public class JMSConfig 
 {
-	@Value("${activemq.url}")
+	@Value("${broker.url}")
 	private String url;
 
 	@Value("${async.queue}")
