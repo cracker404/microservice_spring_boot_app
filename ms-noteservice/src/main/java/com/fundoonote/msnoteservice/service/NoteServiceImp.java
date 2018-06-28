@@ -1,7 +1,6 @@
 package com.fundoonote.msnoteservice.service;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -133,7 +132,7 @@ public class NoteServiceImp implements INoteService {
 		jmsService.addToQueue(note, OperationType.DELETE, noteId);
 
 		NotePreferences notePreferences = notePrefDao.deleteByNoteAndUserId(note, loggedInUserId);
-		jmsService.addToQueue(notePreferences, OperationType.DELETE, notePreferences.getNotePreId());
+		jmsService.addToQueue(null, OperationType.DELETE, notePreferences.getNotePreId());
 	}
 
 	@Override
@@ -285,6 +284,7 @@ public class NoteServiceImp implements INoteService {
 
 	}
 
+	@Transactional
 	@Override
 	public void collaborate(Integer sharingUserEmail, int noteId, Integer loggedInUserId) throws NSException {
 
@@ -324,8 +324,8 @@ public class NoteServiceImp implements INoteService {
 
 	}
 
-	@Override
 	@Transactional
+	@Override
 	public void trashOrRestore(int noteId, Status status, Integer loggedInUserId) throws NSException
 	{
 		if (status == Status.TRASH) 
@@ -387,6 +387,7 @@ public class NoteServiceImp implements INoteService {
 		jmsService.addToQueue(esNotePreferences, OperationType.UPDATE, notePreferences.getNotePreId());
 	}
 
+	@Transactional
 	@Override
 	public List<NoteDto> getNoteByStatus(Status status, Integer loggedInUser) {
 		List<NotePreferences> notePreferences = notePrefDao.getAllNotePreferenceByUserIdAndStatus(loggedInUser, status);
