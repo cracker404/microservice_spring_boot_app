@@ -236,7 +236,7 @@ public class NoteServiceImp implements INoteService {
 	 */
 
 	@Override
-	public void addOrRemoveLabelFromNote(int noteId, int labelId, Integer loggedInUserId) throws NSException {
+	public void addOrRemoveLabelFromNote(int labelId, int noteId, Integer loggedInUserId) throws NSException {
 		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(new Note(noteId), loggedInUserId);
 		Optional<Label> optional = labelDao.findById(labelId);
 		Label label = optional.get();
@@ -322,7 +322,7 @@ public class NoteServiceImp implements INoteService {
 		if (!optional.isPresent()) {
 			throw new NSException(111, new Object[] { "perform remove collaboration" });
 		}
-		if(note.getUserId() == sharedUserId)
+		if(note.getUserId() != sharedUserId)
 		{
 			throw new NSException(111, new Object[] { "perform remove collaboration" });
 		}

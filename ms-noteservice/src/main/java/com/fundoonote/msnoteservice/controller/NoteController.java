@@ -154,18 +154,16 @@ public class NoteController
 	}*/
 	
 	@RequestMapping(value = "/label/addorremovelabelfromnote", method = RequestMethod.POST)
-	ResponseEntity<Response> addOrRemoveLabelFromNote(@RequestHeader int labelId, @RequestHeader int noteId,
+	ResponseEntity<Response> addOrRemoveLabelFromNote(@RequestParam int labelId, @RequestParam int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
+		noteService.addOrRemoveLabelFromNote(labelId, noteId, loggedInUserId);
 		Response response = new Response();
 		response.setResponseMessage("Label removed from note succesfully..!!");
 		response.setStatusCode(200);
-		noteService.addOrRemoveLabelFromNote(labelId, noteId, loggedInUserId);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 	
-	
-
 	@RequestMapping(value = "/saveimage", method = RequestMethod.POST)
 	ResponseEntity<Response> saveImage(@RequestPart MultipartFile image, int noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 

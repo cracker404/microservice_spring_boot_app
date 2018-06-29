@@ -1,5 +1,6 @@
 package com.fundoonote.msapi_gateway.security.config;
 
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,18 +19,31 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.google.common.collect.ImmutableList;
 
+
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Value("${jwt.secret}")
 	private String secret;
+	
+//	@Value("${client.ip}")
+//	private String clientIp;
 
 	@Bean
 	@Override
 	protected AuthenticationManager authenticationManager() throws Exception {
 		return super.authenticationManager();
 	}
-
+	
+//	@Bean
+//	public WebMvcConfigurer webMvcConfigurer() {
+//		return new WebMvcConfigurer() {
+//			@Override
+//			public void addCorsMappings(CorsRegistry registry) {
+//				registry.addMapping("/**");
+//			}
+//		};
+//	}
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
@@ -37,8 +51,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				// .realmName(securityRealm)
 				// .and()
 		.cors().and()
+				//.cors().and()
 				.csrf().disable();
 	}
+	
+//	@Bean
+//	public CorsConfigurationSource corsConfigurationSource() {
+//		CorsConfiguration configuration = new CorsConfiguration();
+//		configuration.setAllowedOrigins(Arrays.asList("localhost:8080"));
+//		configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE"));
+//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//		source.registerCorsConfiguration("/**", configuration);
+//		return source;
+//	}
 	
 	@Bean
     public CorsConfigurationSource corsConfigurationSource() {
