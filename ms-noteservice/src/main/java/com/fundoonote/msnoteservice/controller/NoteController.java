@@ -46,14 +46,13 @@ import com.fundoonote.msnoteservice.service.INoteService;
  * @author Bridgelabz
  */
 @RestController
-public class NoteController 
-{
+public class NoteController {
 	@Autowired
 	private INoteService noteService;
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	ResponseEntity<?> saveNote(@RequestBody NoteDto note,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException 
-	{
+	ResponseEntity<?> saveNote(@RequestBody NoteDto note, @RequestHeader(name = "userId") Integer loggedInUserId)
+			throws NSException {
 		Response response = new Response();
 		noteService.saveNote(note, loggedInUserId);
 		response.setStatusCode(200);
@@ -62,7 +61,7 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/updatenote", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<Response> updateNote(@RequestBody Note note, @RequestHeader(name="userId") Integer loggedInUserId)
+	ResponseEntity<Response> updateNote(@RequestBody Note note, @RequestHeader(name = "userId") Integer loggedInUserId)
 			throws NSException {
 		Response response = new Response();
 		noteService.updateNote(note, loggedInUserId);
@@ -72,7 +71,8 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/updatenotepref", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<Response> updateNotePref(@RequestBody NotePreferences notePref, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException{
+	ResponseEntity<Response> updateNotePref(@RequestBody NotePreferences notePref,
+			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.updatenotePref(notePref, loggedInUserId);
@@ -82,7 +82,8 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/deletenote/{noteId}", method = RequestMethod.DELETE)
-	ResponseEntity<Response> deleteNote(@PathVariable int noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> deleteNote(@PathVariable int noteId,
+			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 		Response response = new Response();
 		noteService.deleteNote(noteId, loggedInUserId);
 		response.setStatusCode(200);
@@ -91,13 +92,14 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/getnotes", method = RequestMethod.GET)
-	ResponseEntity<List<NoteDto>> getNotes(@RequestHeader(name="userId") Integer loggedInUserId) {
+	ResponseEntity<List<NoteDto>> getNotes(@RequestHeader(name = "userId") Integer loggedInUserId) {
 		List<NoteDto> notes = noteService.getNotes(loggedInUserId);
 		return new ResponseEntity<List<NoteDto>>(notes, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/label/save", method = RequestMethod.POST)
-	ResponseEntity<Response> saveLabel(@RequestBody Label label, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> saveLabel(@RequestBody Label label, @RequestHeader(name = "userId") Integer loggedInUserId)
+			throws NSException {
 		Response response = new Response();
 		noteService.saveLabel(label, loggedInUserId);
 		response.setStatusCode(200);
@@ -106,7 +108,8 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/label/renamelabel", method = RequestMethod.PUT)
-	ResponseEntity<Response> renameLabel(@RequestBody Label label, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> renameLabel(@RequestBody Label label,
+			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.renameLabel(label, loggedInUserId);
@@ -116,43 +119,23 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/label/deletelabel/{labelId}", method = RequestMethod.DELETE)
-	ResponseEntity<Response> deleteLabel(@PathVariable int labelId,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> deleteLabel(@PathVariable int labelId,
+			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.deleteLabel(labelId, loggedInUserId);
 		response.setResponseMessage("Label deleted successfully");
-		response.setStatusCode(200); 
+		response.setStatusCode(200);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/label/getlabels", method = RequestMethod.GET)
-	ResponseEntity<List<Label>> getLabels(@RequestHeader(name="userId") Integer loggedInUserId) {
+	ResponseEntity<List<Label>> getLabels(@RequestHeader(name = "userId") Integer loggedInUserId) {
 		List<Label> labels = noteService.getLabels(loggedInUserId);
 		return new ResponseEntity<List<Label>>(labels, HttpStatus.OK);
 
 	}
 
-	/*@RequestMapping(value = "/label/addlabeltonote", method = RequestMethod.POST)
-	ResponseEntity<Response> addLabel(@RequestHeader int noteId, @RequestHeader int labelId,@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
-
-		Response response = new Response();
-		noteService.addLabelToNote(noteId, labelId, loggedInUserId);
-		response.setResponseMessage("Label is added to note");
-		response.setStatusCode(200);
-		return new ResponseEntity<Response>(response, HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/label/removelabelfromnote", method = RequestMethod.POST)
-	ResponseEntity<Response> saveLabelFromNote(@RequestBody Label label, @RequestHeader int noteId,
-			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
-
-		Response response = new Response();
-		response.setResponseMessage("Label removed from note succesfully..!!");
-		response.setStatusCode(200);
-		noteService.removeLabelFromNote(label, noteId, loggedInUserId);
-		return new ResponseEntity<Response>(response, HttpStatus.OK);
-	}*/
-	
 	@RequestMapping(value = "/label/addorremovelabelfromnote", method = RequestMethod.POST)
 	ResponseEntity<Response> addOrRemoveLabelFromNote(@RequestParam int labelId, @RequestParam int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
@@ -164,8 +147,10 @@ public class NoteController
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 	
+
 	@RequestMapping(value = "/saveimage", method = RequestMethod.POST)
-	ResponseEntity<Response> saveImage(@RequestPart MultipartFile image, int noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> saveImage(@RequestPart MultipartFile image, int noteId,
+			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.saveImage(image, noteId, loggedInUserId);
@@ -175,8 +160,8 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/deleteimage", method = RequestMethod.DELETE)
-	ResponseEntity<Response> deleteImage(@RequestHeader(name="userId") Integer loggedInUserId, @RequestHeader("noteId") int noteId,
-			@RequestHeader("key") String key) throws NSException {
+	ResponseEntity<Response> deleteImage(@RequestHeader(name = "userId") Integer loggedInUserId,
+			@RequestParam("noteId") int noteId, @RequestHeader("key") String key) throws NSException {
 		Response response = new Response();
 		noteService.deleteImage(loggedInUserId, noteId, key);
 		response.setStatusCode(200);
@@ -186,7 +171,7 @@ public class NoteController
 
 	@RequestMapping(value = "/collaborate", method = RequestMethod.POST)
 	ResponseEntity<Response> collaborate(@RequestParam Integer sharedUserId, @RequestParam int noteId,
-			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.collaborate(sharedUserId, noteId, loggedInUserId);
@@ -196,7 +181,8 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/removecollaborate", method = RequestMethod.DELETE)
-	ResponseEntity<Response> removeCollaborate(@RequestParam Integer sharedUserId, @RequestParam int noteId, @RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> removeCollaborate(@RequestParam Integer sharedUserId, @RequestParam int noteId,
+			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.removeCollaborator(sharedUserId, noteId, loggedInUserId);
@@ -206,8 +192,8 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/pinorunpin", method = RequestMethod.PUT)
-	ResponseEntity<Response> pinOrUnpin(@RequestHeader int notePrefId, @RequestHeader boolean isPinned,
-			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
+	ResponseEntity<Response> pinOrUnpin(@RequestParam int notePrefId, @RequestParam boolean isPinned,
+			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
 		noteService.pinOrUnpin(notePrefId, isPinned, loggedInUserId);
@@ -232,25 +218,25 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/trashorrestore", method = RequestMethod.PUT)
-	ResponseEntity<Response> trashOrRestore(@RequestParam int noteId, @RequestParam String status,
+	ResponseEntity<Response> trashOrRestore(@RequestParam int noteId, @RequestParam String noteStatus,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 		
-		Status status2 = Status.valueOf(status);
-		if( status2 == Status.ARCHIVE)
+		Status status = Status.valueOf(noteStatus);
+		if( status == Status.ARCHIVE)
 	    {
 			throw new NSException(123, new Object[] { "perform trash or Restore" });
-	    }
+		}
 		Response response = new Response();
-		noteService.trashOrRestore(noteId, status2, loggedInUserId);
+		noteService.trashOrRestore(noteId, status, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("data updated successfully");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/getnotebystatus", method = RequestMethod.GET)
-	ResponseEntity<List<NoteDto>> getNoteByStatus(@RequestHeader(name="userId") Integer loggedInUserId, @RequestHeader String status){
-		Status status2 = Status.valueOf(status);
-		List<NoteDto> noteDto = noteService.getNoteByStatus(status2, loggedInUserId);
+	ResponseEntity<List<NoteDto>> getNoteByStatus(@RequestHeader(name="userId") Integer loggedInUserId, @RequestHeader String noteStatus){
+		Status status = Status.valueOf(noteStatus);
+		List<NoteDto> noteDto = noteService.getNoteByStatus(status, loggedInUserId);
 		return new ResponseEntity<List<NoteDto>>(noteDto, HttpStatus.OK);
 	}
 }

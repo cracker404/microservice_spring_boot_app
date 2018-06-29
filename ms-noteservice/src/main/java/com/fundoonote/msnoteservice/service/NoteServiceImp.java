@@ -91,7 +91,8 @@ public class NoteServiceImp implements INoteService {
 		notePreferences.setNote(note);
 		notePreferences.setUserId(userId);
 		notePrefDao.save(notePreferences);
-		jmsService.addToQueue(notePreferences, OperationType.SAVE, notePreferences.getNotePreId());
+		ESNotePreferences esNotePreferences = new ESNotePreferences(notePreferences);
+		jmsService.addToQueue(esNotePreferences, OperationType.SAVE, notePreferences.getNotePreId());
 	}
 
 	@Override
@@ -164,9 +165,9 @@ public class NoteServiceImp implements INoteService {
 
 	@Override
 	public void saveLabel(Label label, Integer loggedInUserId) throws NSException {
-		/*if (!(labelDao.findByNameAndUserId(label.getName(), loggedInUserId))) {
+		if ((labelDao.findByNameAndUserId(label.getName(), loggedInUserId))) {
 			throw new NSException(115, new Object[] { label.getName() });
-		}*/
+		}
 		label.setUserId(loggedInUserId);
 		labelDao.save(label);
 		jmsService.addToQueue(label, OperationType.SAVE, label.getLabelId());
