@@ -124,15 +124,18 @@ public class NoteServiceImp implements INoteService {
 	public void deleteNote(int noteId, Integer loggedInUserId) throws NSException {
 
 		Optional<Note> optional = noteDao.findById(noteId);
+		if(!optional.isPresent())
+			throw new NSException(111, new Object[] { "delete note :-" });
 		Note note = optional.get();
-		if (!note.getUserId().equals(loggedInUserId)) {
+		if (note.getUserId()!=loggedInUserId) {
 			throw new NSException(111, new Object[] { "delete note :-" });
 		}
 		noteDao.deleteById(noteId);
 		jmsService.addToQueue(note, OperationType.DELETE, noteId);
+		
+		NotePreferences preferences = notePrefDao.deleteByNoteAndUserId(note, loggedInUserId);
+		jmsService.addToQueue(null, OperationType.DELETE, preferences.getNotePreId());
 
-		NotePreferences notePreferences = notePrefDao.deleteByNoteAndUserId(note, loggedInUserId);
-		jmsService.addToQueue(null, OperationType.DELETE, notePreferences.getNotePreId());
 	}
 
 	@Override
@@ -150,7 +153,8 @@ public class NoteServiceImp implements INoteService {
 		return result;
 	}
 
-	private Set<Integer> getAllCollabUserByNote(int noteId) {
+	private Set<Integer> getAllCollabUserByNote(int noteId) 
+	{
 		Note note = new Note();
 		note.setNoteId(noteId);
 		List<Collaboration> collaborators = collaboratorDao.getByNote(note);
@@ -160,9 +164,9 @@ public class NoteServiceImp implements INoteService {
 
 	@Override
 	public void saveLabel(Label label, Integer loggedInUserId) throws NSException {
-		if (!(labelDao.findByNameAndUserId(label.getName(), loggedInUserId))) {
+		/*if (!(labelDao.findByNameAndUserId(label.getName(), loggedInUserId))) {
 			throw new NSException(115, new Object[] { label.getName() });
-		}
+		}*/
 		label.setUserId(loggedInUserId);
 		labelDao.save(label);
 		jmsService.addToQueue(label, OperationType.SAVE, label.getLabelId());
@@ -192,13 +196,14 @@ public class NoteServiceImp implements INoteService {
 	public void deleteLabel(int labelId, Integer loggedInUserId) throws NSException {
 		Optional<Label> optional = labelDao.findById(labelId);
 
-		if (optional.isPresent())
+		if (!optional.isPresent())
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		Label label = optional.get();
-		if (label.getUserId() == loggedInUserId) {
+		if (label.getUserId() != loggedInUserId) {
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		}
 		labelDao.deleteById(labelId);
+		
 		jmsService.addToQueue(label, OperationType.DELETE, label.getLabelId());
 	}
 
@@ -267,44 +272,45 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void saveImage(MultipartFile image, int noteId, Integer loggedInUserId) throws NSException {
-
+	public void saveImage(MultipartFile image, int noteId, Integer loggedInUserId) throws NSException 
+	{
 		Optional<Note> optional = noteDao.findById(noteId);
+		if(!optional.isPresent())
+			throw new NSException(111, new Object[] { "performing save image for note" });
 		Note note = optional.get();
 		if (!(note.getUserId() == loggedInUserId)) {
-			throw new NSException(101, new Object[] { "" });
+			throw new NSException(111, new Object[] { "performing save image for note" });
 		}
 		String imageUrl = s3Service.saveImageToS3(noteId, image);
-		if (imageUrl == null) {
-			throw new NSException(108, new Object[] { "" });
-		}
 		note.setImageUrl(imageUrl);
 		noteDao.save(note);
 		jmsService.addToQueue(note, OperationType.SAVE, note.getNoteId());
-
 	}
 
 	@Transactional
 	@Override
-	public void collaborate(Integer sharingUserEmail, int noteId, Integer loggedInUserId) throws NSException {
-
+	public void collaborate(Integer sharedUserId, int noteId, Integer loggedInUserId) throws NSException 
+	{
 		Optional<Note> optional = noteDao.findById(noteId);
+		if(!optional.isPresent())
+			throw new NSException(111, new Object[] { "performing collaborate for note" });
 		Note note = optional.get();
 		if (!(note.getUserId() == loggedInUserId)) {
-			throw new NSException(101, new Object[] { "" });
+			throw new NSException(111, new Object[] { "performing collaborate for note" });
 		}
 		Set<Integer> collaboratorId = getAllCollabUserByNote(noteId);
 		for (Integer collaborators : collaboratorId) {
-			if (collaborators.equals(sharingUserEmail))
-				throw new NSException(121, new Object[] { "" });
+			if (collaborators.equals(sharedUserId))
+				throw new NSException(121, new Object[] { sharedUserId });
 		}
 		Collaboration collaboration = new Collaboration();
-		collaboration.setNote(note);
+		collaboration.setNote(new Note(note.getNoteId()));//Changed for elastic search
 		collaboration.setSharedById(loggedInUserId);
-		collaboration.setSharedId(sharingUserEmail);
+		collaboration.setSharedId(sharedUserId);
 		collaboratorDao.save(collaboration);
+		
 		jmsService.addToQueue(collaboration, OperationType.SAVE, collaboration.getId());
-		saveNotePrefFromNote(new NotePreferences(), note, sharingUserEmail);
+		saveNotePrefFromNote(new NotePreferences(), note, sharedUserId);
 	}
 
 	@Transactional
@@ -313,8 +319,12 @@ public class NoteServiceImp implements INoteService {
 		Optional<Note> optional = noteDao.findById(noteId);
 
 		Note note = optional.get();
-		if (!optional.isPresent() && !(note.getUserId() == loggedInUserId)) {
-			throw new NSException(111, new Object[] { "" });
+		if (!optional.isPresent()) {
+			throw new NSException(111, new Object[] { "perform remove collaboration" });
+		}
+		if(note.getUserId() == sharedUserId)
+		{
+			throw new NSException(111, new Object[] { "perform remove collaboration" });
 		}
 		Collaboration collaborator = collaboratorDao.deleteByNoteAndSharedId(optional.get(), sharedUserId);
 		jmsService.addToQueue(collaborator, OperationType.DELETE, collaborator.getId());

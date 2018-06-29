@@ -187,11 +187,11 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/collaborate", method = RequestMethod.POST)
-	ResponseEntity<Response> collaborate(@RequestParam Integer sharingUserEmail, @RequestParam int noteId,
+	ResponseEntity<Response> collaborate(@RequestParam Integer sharedUserId, @RequestParam int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
 		Response response = new Response();
-		noteService.collaborate(sharingUserEmail, noteId, loggedInUserId);
+		noteService.collaborate(sharedUserId, noteId, loggedInUserId);
 		response.setResponseMessage("Note is Collaborated Successfully");
 		response.setStatusCode(200);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
@@ -219,36 +219,40 @@ public class NoteController
 	}
 
 	@RequestMapping(value = "/archiveorunarchive", method = RequestMethod.PUT)
-	ResponseEntity<Response> archiveOrUnarchive(@RequestHeader int notePrefId, @RequestHeader Status status,
+	ResponseEntity<Response> archiveOrUnarchive(@RequestParam Integer notePrefId, @RequestParam String status,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
-		if (status != Status.ARCHIVE || status != Status.NONE) {
+		Status status2 = Status.valueOf(status);
+		if (status2 == Status.TRASH) {
 			throw new NSException(123, new Object[] { "perform trash or Restore" });
 		}
 		Response response = new Response();
-		noteService.archiveOrUnarchive(notePrefId, status, loggedInUserId);
+		noteService.archiveOrUnarchive(notePrefId, status2, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("data updated successfully");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/trashorrestore", method = RequestMethod.PUT)
-	ResponseEntity<Response> trashOrRestore(@RequestParam int noteId, @RequestParam Status status,
+	ResponseEntity<Response> trashOrRestore(@RequestParam int noteId, @RequestParam String status,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
-		if( status != Status.TRASH || status != Status.NONE )
+		
+		Status status2 = Status.valueOf(status);
+		if( status2 == Status.ARCHIVE)
 	    {
 			throw new NSException(123, new Object[] { "perform trash or Restore" });
 	    }
 		Response response = new Response();
-		noteService.trashOrRestore(noteId, status, loggedInUserId);
+		noteService.trashOrRestore(noteId, status2, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("data updated successfully");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/getnotebystatus", method = RequestMethod.GET)
-	ResponseEntity<List<NoteDto>> getNoteByStatus(@RequestHeader(name="userId") Integer loggedInUserId, @RequestHeader Status status){
-		List<NoteDto> noteDto = noteService.getNoteByStatus(status, loggedInUserId);
+	ResponseEntity<List<NoteDto>> getNoteByStatus(@RequestHeader(name="userId") Integer loggedInUserId, @RequestHeader String status){
+		Status status2 = Status.valueOf(status);
+		List<NoteDto> noteDto = noteService.getNoteByStatus(status2, loggedInUserId);
 		return new ResponseEntity<List<NoteDto>>(noteDto, HttpStatus.OK);
 	}
 }

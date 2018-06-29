@@ -40,7 +40,7 @@ public class SearchController {
 	}*/
 
 	@GetMapping(value="/search")
-	public List<String> search(@RequestHeader String text, @RequestHeader String index) throws FNException, IOException {
+	public List<String> search(@RequestParam String text, @RequestParam String index) throws FNException, IOException {
 		return esService.searchByText(index, index, "*" + text + "*");
 	}
 

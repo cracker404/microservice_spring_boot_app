@@ -27,7 +27,6 @@ public interface INotePrefDao extends JpaRepository<NotePreferences, Integer> {
 	@Modifying
 	List<NotePreferences> getAllNotePreferenceByUserIdAndStatus(Integer loggedInUser, Status status);
 
-	
 	@Modifying
 	void deleteByUserId(Integer loggedInUserId);
 

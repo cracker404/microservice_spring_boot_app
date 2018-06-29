@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fundoonote.msnoteservice.model.Collaboration;
 import com.fundoonote.msnoteservice.model.Note;

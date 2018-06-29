@@ -41,7 +41,7 @@ public interface INoteService {
 
 	void deleteImage(Integer userId, int noteId, String key) throws NSException;
 
-	void collaborate(Integer sharingUserEmail, int noteId, Integer loggedInUserEmail) throws NSException;
+	void collaborate(Integer sharedUserId, int noteId, Integer loggedInUserEmail) throws NSException;
 
 	void removeCollaborator(Integer sharedUserId, int noteId, Integer loggedInUserId) throws NSException;
 	

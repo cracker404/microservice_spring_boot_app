@@ -43,7 +43,7 @@ public class NotePreferences implements Serializable {
 	@JoinTable(name ="NoteLabel", joinColumns=@JoinColumn(name="noteId"), inverseJoinColumns=@JoinColumn(name="labelId"))
 	private Set<Label> labels = new HashSet<Label>();
 	
-	@JsonIgnore
+	//@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="noteId")
 	private Note note;
