@@ -198,10 +198,10 @@ public class NoteServiceImp implements INoteService {
 	public void deleteLabel(int labelId, Integer loggedInUserId) throws NSException {
 		Optional<Label> optional = labelDao.findById(labelId);
 
-		if (optional.isPresent())
+		if (!optional.isPresent())
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		Label label = optional.get();
-		if (label.getUserId() == loggedInUserId) {
+		if (label.getUserId() != loggedInUserId) {
 			throw new NSException(111, new Object[] { "Delete Label :-" });
 		}
 		labelDao.deleteById(labelId);
@@ -324,7 +324,7 @@ public class NoteServiceImp implements INoteService {
 		if (!optional.isPresent()) {
 			throw new NSException(111, new Object[] { "perform remove collaboration" });
 		}
-		if(note.getUserId() == sharedUserId)
+		if(note.getUserId() != sharedUserId)
 		{
 			throw new NSException(111, new Object[] { "perform remove collaboration" });
 		}

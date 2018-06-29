@@ -16,7 +16,7 @@ import com.fundoonote.msnoteservice.model.Status;
 @Repository
 public interface INotePrefDao extends JpaRepository<NotePreferences, Integer> {
 
-	NotePreferences findByUserId(Integer loggedInUser);
+	NotePreferences findByUserId(Integer userId);
 	
 	@Query(value = "SELECT nf FROM NotePreferences nf WHERE nf.userId = :userId")
 	List<NotePreferences> getAllNotePreferenceByUserId(@Param("userId")Integer loggedInUser);

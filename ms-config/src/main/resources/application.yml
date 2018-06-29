@@ -6,7 +6,7 @@ spring:
       server:
         git:
           uri: https://github.com/BridgeLabzSource/ms-config-data.git
-          username: ${GITHUB_ADMIN_USERNAME}
-          password: ${GITHUB_ADMIN_PASSWORD}
+          username: admin@bridgelabz.com
+          password: bridge1@bz
   application:
     name: config-server
