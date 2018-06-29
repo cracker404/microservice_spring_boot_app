@@ -32,6 +32,7 @@ public class NSExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Response> runTimeExceptionHandler(Exception exception) {
+		exception.printStackTrace();
 		NSException ex = new NSException(101, new Object[] {" "+ exception.getMessage() }, exception);
 		logger.error(ex.getLogMessage());
 		return new ResponseEntity<Response>(ex.getErrorResponse(), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -5,6 +5,8 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/17satyendra/spring-cloudConfig.git        
+          uri: https://github.com/BridgeLabzSource/ms-config-data.git
+          username: ${GITHUB_ADMIN_USERNAME}
+          password: ${GITHUB_ADMIN_PASSWORD}
   application:
     name: config-server

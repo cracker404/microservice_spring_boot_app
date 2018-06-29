@@ -13,6 +13,7 @@ public class ESNotePreferences implements Serializable {
 	public ESNotePreferences() {	}
 
 	public ESNotePreferences(NotePreferences preferences) {
+		this.esNotePreId=preferences.getNotePreId();
 		this.color = preferences.getColor();
 		this.remainder = preferences.getRemainder();
 		this.status = preferences.getStatus();
@@ -20,6 +21,7 @@ public class ESNotePreferences implements Serializable {
 		this.labelIds = preferences.getLabels().stream().map(l -> {
 			return l.getLabelId();
 		}).collect(Collectors.toSet());
+		this.noteId=preferences.getNote().getNoteId();
 	}
 
 	private long esNotePreId;
