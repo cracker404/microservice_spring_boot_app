@@ -98,4 +98,10 @@ public class SearchController {
 	public String getById(@RequestParam String index, @RequestParam String id) throws FNException {
 		return esService.getById(id, index);
 	}
+	
+	@PostMapping("/getbyparams")
+	public List<String> getByParams(@RequestParam String index, @RequestBody Map<String, Object> values) throws FNException {
+		List<String> results = esService.multipleFieldSearchQuery(values, index);
+		return results;
+	}
 }

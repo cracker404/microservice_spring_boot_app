@@ -2,6 +2,8 @@ package com.fundoonote.msnoteservice.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,50 +51,61 @@ import com.fundoonote.msnoteservice.service.INoteService;
 public class NoteController {
 	@Autowired
 	private INoteService noteService;
+	
+	   private final Logger logger = LoggerFactory.getLogger(NoteController.class);
+
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	ResponseEntity<?> saveNote(@RequestBody NoteDto note, @RequestHeader(name = "userId") Integer loggedInUserId)
 			throws NSException {
+		logger.debug("Create Note");
 		Response response = new Response();
 		noteService.saveNote(note, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("Note created...");
+		logger.info("Note created successfully %s", response);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/updatenote", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Response> updateNote(@RequestBody Note note, @RequestHeader(name = "userId") Integer loggedInUserId)
 			throws NSException {
+		logger.debug("Updating Note");
 		Response response = new Response();
 		noteService.updateNote(note, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("Note updated...");
+		logger.info("Note Updated");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/updatenotepref", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Response> updateNotePref(@RequestBody NotePreferences notePref,
 			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
-
+		logger.debug("Updating NotePreferences");
 		Response response = new Response();
 		noteService.updatenotePref(notePref, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("Note Preferences updated...");
+		logger.info("NotePreferences Updated");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/deletenote/{noteId}", method = RequestMethod.DELETE)
 	ResponseEntity<Response> deleteNote(@PathVariable int noteId,
 			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
+		logger.debug("Note and NotePreferences deletion");
 		Response response = new Response();
 		noteService.deleteNote(noteId, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("note deleted successfully");
+		logger.info("Note and NotePreferences deleted");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/getnotes", method = RequestMethod.GET)
 	ResponseEntity<List<NoteDto>> getNotes(@RequestHeader(name = "userId") Integer loggedInUserId) {
+		logger.debug("Fetching All Notes");
 		List<NoteDto> notes = noteService.getNotes(loggedInUserId);
 		return new ResponseEntity<List<NoteDto>>(notes, HttpStatus.OK);
 	}
@@ -100,10 +113,12 @@ public class NoteController {
 	@RequestMapping(value = "/label/save", method = RequestMethod.POST)
 	ResponseEntity<Response> saveLabel(@RequestBody Label label, @RequestHeader(name = "userId") Integer loggedInUserId)
 			throws NSException {
+		logger.debug("Label creation");
 		Response response = new Response();
 		noteService.saveLabel(label, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("label saved successfully");
+		logger.info("label created successfully");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -111,10 +126,12 @@ public class NoteController {
 	ResponseEntity<Response> renameLabel(@RequestBody Label label,
 			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
+		logger.debug("Label updation");
 		Response response = new Response();
 		noteService.renameLabel(label, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("label updated successfully");
+		logger.info("Label updated ");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -122,15 +139,18 @@ public class NoteController {
 	ResponseEntity<Response> deleteLabel(@PathVariable int labelId,
 			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
+		logger.debug("Deleting label");
 		Response response = new Response();
 		noteService.deleteLabel(labelId, loggedInUserId);
 		response.setResponseMessage("Label deleted successfully");
 		response.setStatusCode(200);
+		logger.info("Label deleted");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/label/getlabels", method = RequestMethod.GET)
 	ResponseEntity<List<Label>> getLabels(@RequestHeader(name = "userId") Integer loggedInUserId) {
+		logger.debug("Fetching all labels");
 		List<Label> labels = noteService.getLabels(loggedInUserId);
 		return new ResponseEntity<List<Label>>(labels, HttpStatus.OK);
 
@@ -140,6 +160,7 @@ public class NoteController {
 	ResponseEntity<Response> addOrRemoveLabelFromNote(@RequestParam int labelId, @RequestParam int noteId,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
+		logger.debug("Adding and removing labels from note");
 		noteService.addOrRemoveLabelFromNote(labelId, noteId, loggedInUserId);
 		Response response = new Response();
 		response.setResponseMessage("Label removed from note succesfully..!!");
@@ -149,23 +170,27 @@ public class NoteController {
 	
 
 	@RequestMapping(value = "/saveimage", method = RequestMethod.POST)
-	ResponseEntity<Response> saveImage(@RequestPart MultipartFile image, int noteId,
+	ResponseEntity<Response> saveImage(@RequestPart MultipartFile image,@RequestParam int noteId,
 			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
+		logger.debug("Saving Image");
 		Response response = new Response();
-		noteService.saveImage(image, noteId, loggedInUserId);
+		String imageUrl = noteService.saveImage(image, noteId, loggedInUserId);
 		response.setStatusCode(200);
-		response.setResponseMessage("imgae uploaded successfully");
+		response.setResponseMessage(imageUrl);
+		logger.info("Image saved");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/deleteimage", method = RequestMethod.DELETE)
 	ResponseEntity<Response> deleteImage(@RequestHeader(name = "userId") Integer loggedInUserId,
-			@RequestParam("noteId") int noteId, @RequestHeader("key") String key) throws NSException {
+			@RequestParam("noteId") int noteId) throws NSException {
+		logger.debug("Removing Image");
 		Response response = new Response();
-		noteService.deleteImage(loggedInUserId, noteId, key);
+		noteService.deleteImage(loggedInUserId, noteId);
 		response.setStatusCode(200);
 		response.setResponseMessage("imgae deleted successfully");
+		logger.info("Image deleted");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -173,10 +198,12 @@ public class NoteController {
 	ResponseEntity<Response> collaborate(@RequestParam Integer sharedUserId, @RequestParam int noteId,
 			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
+		logger.debug("Note collaboration");
 		Response response = new Response();
 		noteService.collaborate(sharedUserId, noteId, loggedInUserId);
 		response.setResponseMessage("Note is Collaborated Successfully");
 		response.setStatusCode(200);
+		logger.info("Note collaborated");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -184,10 +211,12 @@ public class NoteController {
 	ResponseEntity<Response> removeCollaborate(@RequestParam Integer sharedUserId, @RequestParam int noteId,
 			@RequestHeader(name = "userId") Integer loggedInUserId) throws NSException {
 
+		logger.debug("Removing note collaboration");
 		Response response = new Response();
 		noteService.removeCollaborator(sharedUserId, noteId, loggedInUserId);
 		response.setResponseMessage("Collaborator is deleted successfully");
 		response.setStatusCode(200);
+		logger.info("Collaborator removed");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -206,6 +235,7 @@ public class NoteController {
 	ResponseEntity<Response> archiveOrUnarchive(@RequestParam Integer notePrefId, @RequestParam String status,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 
+		logger.debug("Note Archive or UnArchive");
 		Status status2 = Status.valueOf(status);
 		if (status2 == Status.TRASH) {
 			throw new NSException(123, new Object[] { "perform trash or Restore" });
@@ -214,6 +244,7 @@ public class NoteController {
 		noteService.archiveOrUnarchive(notePrefId, status2, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("data updated successfully");
+		logger.info("Note Archived or UnArchived");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -221,6 +252,7 @@ public class NoteController {
 	ResponseEntity<Response> trashOrRestore(@RequestParam int noteId, @RequestParam String noteStatus,
 			@RequestHeader(name="userId") Integer loggedInUserId) throws NSException {
 		
+		logger.debug("Note trash or restore");
 		Status status = Status.valueOf(noteStatus);
 		if( status == Status.ARCHIVE)
 	    {
@@ -230,11 +262,13 @@ public class NoteController {
 		noteService.trashOrRestore(noteId, status, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("data updated successfully");
+		logger.info("Note Trashed or Restored");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/getnotebystatus", method = RequestMethod.GET)
-	ResponseEntity<List<NoteDto>> getNoteByStatus(@RequestHeader(name="userId") Integer loggedInUserId, @RequestHeader String noteStatus){
+	ResponseEntity<List<NoteDto>> getNoteByStatus(@RequestHeader(name="userId") Integer loggedInUserId, @RequestParam String noteStatus){
+		logger.debug("Fetching Notes by status");
 		Status status = Status.valueOf(noteStatus);
 		List<NoteDto> noteDto = noteService.getNoteByStatus(status, loggedInUserId);
 		return new ResponseEntity<List<NoteDto>>(noteDto, HttpStatus.OK);

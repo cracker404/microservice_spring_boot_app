@@ -30,7 +30,7 @@ public interface INotePrefDao extends JpaRepository<NotePreferences, Integer> {
 	@Modifying
 	void deleteByUserId(Integer loggedInUserId);
 
-	NotePreferences deleteByNoteAndUserId(Note note, Integer loggedInUserId);
+	int deleteByNoteAndUserId(Note note, Integer loggedInUserId);
 
 	Optional<NotePreferences> findByNote(Note note);
 }

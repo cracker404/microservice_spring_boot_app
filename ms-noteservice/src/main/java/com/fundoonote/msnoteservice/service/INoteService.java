@@ -37,9 +37,9 @@ public interface INoteService {
 	
 	void addOrRemoveLabelFromNote(int noteId, int labelId, Integer loggedInUserId) throws NSException;
 
-	void saveImage(MultipartFile image, int noteId, Integer loggedInUserId) throws NSException;
+	String saveImage(MultipartFile image, int noteId, Integer loggedInUserId) throws NSException;
 
-	void deleteImage(Integer userId, int noteId, String key) throws NSException;
+	void deleteImage(Integer userId, int noteId) throws NSException;
 
 	void collaborate(Integer sharedUserId, int noteId, Integer loggedInUserEmail) throws NSException;
 

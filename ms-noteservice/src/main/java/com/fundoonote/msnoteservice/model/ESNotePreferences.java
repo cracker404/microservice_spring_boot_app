@@ -22,6 +22,7 @@ public class ESNotePreferences implements Serializable {
 			return l.getLabelId();
 		}).collect(Collectors.toSet());
 		this.noteId=preferences.getNote().getNoteId();
+		this.userId = preferences.getUserId();
 	}
 
 	private long esNotePreId;

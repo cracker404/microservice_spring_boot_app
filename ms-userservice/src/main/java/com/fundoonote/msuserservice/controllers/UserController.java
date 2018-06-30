@@ -1,5 +1,7 @@
 package com.fundoonote.msuserservice.controllers;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -206,10 +208,10 @@ public class UserController
 
    @PostMapping("changepassword/{token:.+}")
    public ResponseEntity<Response> changePassword(@PathVariable("token") String token, 
-		   @RequestParam("newPassword")String newPassword)
+		   @RequestBody Map<String, String> newPassword)
    {
       try {
-         userService.changePassword(token, newPassword);
+         userService.changePassword(token, newPassword.get("newPassword"));
       } 
       catch (UserException e) {
          logger.error(e.getMessage());
