@@ -58,12 +58,12 @@ public class NoteController {
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	ResponseEntity<?> saveNote(@RequestBody NoteDto note, @RequestHeader(name = "userId") Integer loggedInUserId)
 			throws NSException {
-		logger.debug("Create Note");
+		logger.debug("Creating Note");
 		Response response = new Response();
 		noteService.saveNote(note, loggedInUserId);
 		response.setStatusCode(200);
 		response.setResponseMessage("Note created...");
-		logger.info("Note created successfully %s", response);
+		logger.info("Note created successfully");
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 

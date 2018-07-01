@@ -98,6 +98,13 @@ public class NoteServiceImp implements INoteService {
 		ESNotePreferences esNotePreferences = new ESNotePreferences(notePreferences);
 		jmsService.addToQueue(esNotePreferences, OperationType.SAVE, notePreferences.getNotePreId());
 	}
+	
+	private void deleteNotePrefFromNote(Note note, Integer userId) throws NSException {
+		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(note, userId);
+		ESNotePreferences esNotePreferences = new ESNotePreferences(notePreferences);
+		notePrefDao.deleteByNoteAndUserId(note, userId);
+		jmsService.addToQueue(esNotePreferences, OperationType.DELETE, esNotePreferences.getEsNotePreId());
+	}
 
 	@Override
 	public void updateNote(Note note, Integer userId) throws NSException {
@@ -145,11 +152,7 @@ public class NoteServiceImp implements INoteService {
 			logger.error("UnAuthorized User");
 			throw new NSException(111, new Object[] { "delete note :-" });
 		}
-		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(new Note(noteId), loggedInUserId);
-		ESNotePreferences esNotePreferences = new ESNotePreferences(notePreferences);
-		notePrefDao.delete(notePreferences);
-		jmsService.addToQueue(esNotePreferences, OperationType.DELETE, esNotePreferences.getEsNotePreId());
-		
+		deleteNotePrefFromNote(new Note(noteId), loggedInUserId);
 		noteDao.deleteById(noteId);
 		jmsService.addToQueue(note, OperationType.DELETE, noteId);
 	}
@@ -227,34 +230,6 @@ public class NoteServiceImp implements INoteService {
 		jmsService.addToQueue(label, OperationType.DELETE, label.getLabelId());
 	}
 
-	/*
-	 * @Override public void addLabelToNote(int noteId, int labelId, Integer
-	 * loggedInUserId) throws NSException { NotePreferences notePreferences =
-	 * notePrefDao.getByNoteAndUserId(new Note(noteId), loggedInUserId);
-	 * Optional<Label> label = labelDao.findById(labelId);
-	 * 
-	 * if (!label.isPresent()) { throw new NSException(114, new Object[] {
-	 * "add Label to note :-" }); }
-	 * 
-	 * Set<Label> labels = notePreferences.getLabels(); labels.add(label.get());
-	 * notePreferences.setLabels(labels); notePrefDao.save(notePreferences);
-	 * jmsService.addToQueue(notePreferences, OperationType.SAVE,
-	 * notePreferences.getNotePreId());
-	 * 
-	 * }
-	 * 
-	 * @Override
-	 * 
-	 * @Transactional public void removeLabelFromNote(Label label, int noteId,
-	 * Integer loggedInUserId) throws NSException { NotePreferences notePreferences
-	 * = notePrefDao.getByNoteAndUserId(new Note(noteId), loggedInUserId);
-	 * Set<Label> labels = notePreferences.getLabels(); for (Label notePrefLabel :
-	 * labels) { if (notePrefLabel.getLabelId() == label.getLabelId()) {
-	 * if(labels.remove(label)) { notePreferences.setLabels(labels);
-	 * notePrefDao.save(notePreferences); jmsService.addToQueue(notePreferences,
-	 * OperationType.SAVE, notePreferences.getNotePreId()); break; } } } }
-	 */
-
 	@Override
 	public void addOrRemoveLabelFromNote(int labelId, int noteId, Integer loggedInUserId) throws NSException {
 		NotePreferences notePreferences = notePrefDao.getByNoteAndUserId(new Note(noteId), loggedInUserId);
@@ -278,24 +253,6 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
-	public void deleteImage(Integer loggedInUserId, int noteId) throws NSException {
-
-		Optional<Note> optional = noteDao.findById(noteId);
-		Note note = optional.get();
-		if (!(note.getUserId() == loggedInUserId)) {
-			logger.error("UnAuthorized User");
-			throw new NSException(111, new Object[] { "note.getId()" });
-		}
-		String imageUrl = note.getImageUrl();
-		String key1 = imageUrl.substring(imageUrl.lastIndexOf("/")+1, imageUrl.length());
-		logger.info("Image url key"+key1);
-		s3Service.deleteFileFromS3(key1);
-		note.setImageUrl(null);
-		noteDao.save(note);
-		jmsService.addToQueue(note, OperationType.SAVE, note.getNoteId());
-	}
-
-	@Override
 	public String saveImage(MultipartFile image, int noteId, Integer loggedInUserId) throws NSException {
 		Optional<Note> optional = noteDao.findById(noteId);
 		if (!optional.isPresent()) {
@@ -312,6 +269,23 @@ public class NoteServiceImp implements INoteService {
 		noteDao.save(note);
 		jmsService.addToQueue(note, OperationType.SAVE, note.getNoteId());
 		return imageUrl;
+	}
+	
+	@Override
+	public void deleteImage(Integer loggedInUserId, int noteId) throws NSException {
+
+		Optional<Note> optional = noteDao.findById(noteId);
+		Note note = optional.get();
+		if (!(note.getUserId() == loggedInUserId)) {
+			logger.error("UnAuthorized User");
+			throw new NSException(111, new Object[] { "note.getId()" });
+		}
+		String imageUrl = note.getImageUrl();
+		String key = imageUrl.substring(imageUrl.lastIndexOf("/")+1, imageUrl.length());
+		s3Service.deleteFileFromS3(key);
+		note.setImageUrl(null);
+		noteDao.save(note);
+		jmsService.addToQueue(note, OperationType.UPDATE, note.getNoteId());
 	}
 
 	@Transactional
@@ -356,11 +330,7 @@ public class NoteServiceImp implements INoteService {
 		Collaboration collaboration = collaboratorDao.getByNoteAndSharedId(note, sharedUserId);
 		collaboratorDao.deleteByNoteAndSharedId(note, sharedUserId);
 		jmsService.addToQueue(collaboration, OperationType.DELETE, collaboration.getId());
-		
-		ESNotePreferences esNotePreferences = new ESNotePreferences(notePrefDao.getByNoteAndUserId(note, loggedInUserId));
-		notePrefDao.deleteByNoteAndUserId(note, sharedUserId);
-		jmsService.addToQueue(esNotePreferences, OperationType.DELETE, esNotePreferences.getEsNotePreId());
-
+		deleteNotePrefFromNote(new Note(noteId), sharedUserId);
 	}
 
 	@Transactional
@@ -371,9 +341,7 @@ public class NoteServiceImp implements INoteService {
 			for (Collaboration collaboration : collaborators) {
 				collaboratorDao.delete(collaboration);
 				jmsService.addToQueue(collaboration, OperationType.DELETE, collaboration.getId());
-				ESNotePreferences esNotePreferences = new ESNotePreferences(notePrefDao.getByNoteAndUserId(new Note(noteId), collaboration.getSharedId()));
-				notePrefDao.deleteByNoteAndUserId(new Note(noteId),collaboration.getSharedId());
-				jmsService.addToQueue(esNotePreferences, OperationType.DELETE, esNotePreferences.getEsNotePreId());
+				deleteNotePrefFromNote(new Note(noteId), collaboration.getSharedId());
 			}
 		}
 
