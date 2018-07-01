@@ -5,10 +5,10 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/bl-sid/fundoonotes-config.git
+          #uri: https://github.com/bl-sid/fundoonotes-config.git
           #uri: https://github.com/17satyendra/spring-cloudConfig.git        
-          #uri: https://github.com/BridgeLabzSource/ms-config-data.git
-          #username: admin@bridgelabz.com
-          #password: bridge1@bz
+          uri: https://github.com/BridgeLabzSource/ms-config-data.git
+          username: admin@bridgelabz.com
+          password: bridge1@bz
   application:
     name: config-server

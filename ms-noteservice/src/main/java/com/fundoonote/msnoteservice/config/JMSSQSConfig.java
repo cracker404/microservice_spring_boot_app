@@ -35,7 +35,7 @@ import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 @ConditionalOnExpression("'${mode}'.equals('production')")
 public class JMSSQSConfig 
 {
-	@Value("${sqs.endpoint}")
+	/*@Value("${sqs.endpoint}")
 	private String endpoint;
 
 	@Value("${sqs.access.key}")
@@ -51,7 +51,25 @@ public class JMSSQSConfig
 	private String region;
 
 	@Value("${async.queue}")
-	private String queue;
+	private String queue;*/
+	
+	   @Value("${sqs.endpoint}")
+	   private String endpoint;
+
+	   @Value("${sqs.access.key}")
+	   private String accessKey;
+
+	   @Value("${sqs.secret.key}")
+	   private String secretKey;
+
+	   @Value("${sqs.queueUrl}")
+	   private String queueUrl;
+
+	   @Value("${sqs.region}")
+	   private String region;
+
+	   @Value("${async.queue}")
+	   private String queue;
 
 	public JMSSQSConfig() 
 	{

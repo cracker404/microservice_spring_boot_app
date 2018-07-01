@@ -5,8 +5,11 @@ spring:
         hibernate:
             ddl-auto: update
     datasource:
-        url: jdbc:mysql://localhost:3306/microservicedemo
+        #url: jdbc:mysql://localhost:3306/microservicedemo
+        url: jdbc:mysql://fundoo-notes-app.cmgtmjfill7k.us-west-2.rds.amazonaws.com:3306/microservicedemo
+        #username: root
+        #password: bridgeit1234
         username: root
-        password: bridgeit1234
+        password: password
         driver-class-name: com.mysql.jdbc.Driver
     
