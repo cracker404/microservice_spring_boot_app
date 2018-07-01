@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -42,6 +43,7 @@ public class Note implements Serializable{
 	@Column
 	private Integer userId;
 	
+	@Transient
 	@Column
 	private String shareByUserId;
 	

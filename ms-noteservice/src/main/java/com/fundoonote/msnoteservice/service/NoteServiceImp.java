@@ -140,6 +140,7 @@ public class NoteServiceImp implements INoteService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteNote(int noteId, Integer loggedInUserId) throws NSException {
 
 		Optional<Note> optional = noteDao.findById(noteId);
