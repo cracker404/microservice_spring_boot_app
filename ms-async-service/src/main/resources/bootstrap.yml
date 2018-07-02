@@ -4,6 +4,7 @@ spring:
     name: ms-async
   cloud:
     config:
-      uri: http://localhost:8081
+      #uri: http://localhost:8081
+      uri: http://13.126.135.113:8081
 server:
   port: 8086

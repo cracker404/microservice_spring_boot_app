@@ -136,7 +136,7 @@ public class AWSESServiceImpl implements IESService {
 	}
 
 	@Override
-	public List<String> multipleFieldSearchQuery(Map<String, Object> fieldValueMap, String index) throws FNException {
+	public List<Map<String, Object>> multipleFieldSearchQuery(Map<String, Object> fieldValueMap, String index) throws FNException {
 		BoolQueryBuilder builder = QueryBuilders.boolQuery();
 		for (String field : fieldValueMap.keySet()) {
 			builder.must(QueryBuilders.matchQuery(field, fieldValueMap.get(field)));
@@ -153,11 +153,11 @@ public class AWSESServiceImpl implements IESService {
 			Response<AmazonWebServiceResponse<String>> response = builder(request).execute(responseHandler);
 
 			String jsonResponse = response.getAwsResponse().getResult();
-			List<String> results = new ArrayList<>();
+			List<Map<String, Object>> results = new ArrayList<>();
 			JsonNode arrayNode = mapper.readTree(jsonResponse).get("hits").get("hits");
 
 			for (JsonNode jsonNode : arrayNode) {
-				String t = mapper.treeToValue(jsonNode.get("_source"), String.class);
+				Map<String, Object> t = mapper.treeToValue(jsonNode.get("_source"), Map.class);
 				results.add(t);
 			}
 
@@ -257,7 +257,7 @@ public class AWSESServiceImpl implements IESService {
 	}
 
 	@Override
-	public List<String> searchByText(String index, String type, String text) throws FNException {
+	public List<Map<String, Object>> searchByText(String index, String type, String text) throws FNException {
 		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 		QueryBuilder builder = boolQueryBuilder.must(QueryBuilders.queryStringQuery(text).lenient(true));
 
@@ -276,11 +276,11 @@ public class AWSESServiceImpl implements IESService {
 
 			String jsonResponse = response.getAwsResponse().getResult();
 
-			List<String> results = new ArrayList<>();
+			List<Map<String, Object>> results = new ArrayList<>();
 			JsonNode arrayNode = mapper.readTree(jsonResponse).get("hits").get("hits");
 
 			for (JsonNode jsonNode : arrayNode) {
-				String t = mapper.treeToValue(jsonNode.get("_source"), String.class);
+				Map<String, Object> t = mapper.treeToValue(jsonNode.get("_source"), Map.class);
 				results.add(t);
 			}
 

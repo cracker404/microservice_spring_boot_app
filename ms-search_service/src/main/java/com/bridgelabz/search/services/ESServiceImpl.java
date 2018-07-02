@@ -124,8 +124,8 @@ public class ESServiceImpl implements IESService {
 	}
 
 	@Override
-	public List<String> multipleFieldSearchQuery(Map<String, Object> fieldValueMap, String index) throws FNException {
-		try {
+	public List<Map<String, Object>>multipleFieldSearchQuery(Map<String, Object> fieldValueMap, String index) throws FNException {
+		/*try {
 			BoolQueryBuilder builder = QueryBuilders.boolQuery();
 			for (Map.Entry<String, Object> entry : fieldValueMap.entrySet()) {
 				builder.must(QueryBuilders.matchQuery(entry.getKey(), entry.getValue()).operator(Operator.AND));
@@ -143,7 +143,8 @@ public class ESServiceImpl implements IESService {
 			return results;
 		} catch (IOException e) {
 			throw new FNException(-101, new Object[] { e.getMessage() + "(" + e.getMessage() + ")" }, e);
-		}
+		}*/
+		return null;
 	}
 
 	@Override
@@ -186,9 +187,9 @@ public class ESServiceImpl implements IESService {
 
 	}
 
-	public List<String> searchByText(String index, String type, String text) throws FNException {
-
-		try {
+	public List<Map<String, Object>> searchByText(String index, String type, String text) throws FNException {
+		return null;
+		/*try {
 			BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 			QueryBuilder builder = boolQueryBuilder.must(QueryBuilders.queryStringQuery(text).lenient(true));
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -205,7 +206,7 @@ public class ESServiceImpl implements IESService {
 			return results;
 		} catch (Exception e) {
 			throw new FNException(-110, new Object[] { e.getMessage() + "(" + e.getMessage() + ")" }, e);
-		}
+		}*/
 	}
 
 }

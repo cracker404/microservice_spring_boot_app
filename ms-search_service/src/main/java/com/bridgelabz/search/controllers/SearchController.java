@@ -39,7 +39,7 @@ public class SearchController {
 	}*/
 
 	@GetMapping(value="/search")
-	public List<String> search(@RequestParam String text, @RequestParam String index) throws FNException, IOException {
+	public List<Map<String, Object>> search(@RequestParam String text, @RequestParam String index) throws FNException, IOException {
 		return esService.searchByText(index, index, "*" + text + "*");
 	}
 
@@ -100,8 +100,8 @@ public class SearchController {
 	}
 	
 	@PostMapping("/getbyparams")
-	public List<String> getByParams(@RequestParam String index, @RequestBody Map<String, Object> values) throws FNException {
-		List<String> results = esService.multipleFieldSearchQuery(values, index);
+	public List<Map<String, Object>> getByParams(@RequestParam String index, @RequestBody Map<String, Object> values) throws FNException {
+		List<Map<String, Object>> results = esService.multipleFieldSearchQuery(values, index);
 		return results;
 	}
 }

@@ -16,7 +16,7 @@ public interface IESService {
 
 	// ************MODIFIED*****************//
 	// Returns list of objects matching given field, partial match is allowed
-	List<String> multipleFieldSearchQuery(Map<String, Object> fieldValueMap, String index) throws FNException;
+	List<Map<String, Object>> multipleFieldSearchQuery(Map<String, Object> fieldValueMap, String index) throws FNException;
 
 	// ************MODIFIED*****************//
 	// Returns list of objects matching given field, partial match is allowed
@@ -27,6 +27,6 @@ public interface IESService {
 	List<String> multipleFieldSearchWithWildcard(String text, Map<String, Float> fields,
 			Map<String, Object> restrictions, String index) throws FNException;
 	
-	List<String> searchByText(String index, String type, String text) throws FNException;
+	List<Map<String, Object>> searchByText(String index, String type, String text) throws FNException;
 
 }

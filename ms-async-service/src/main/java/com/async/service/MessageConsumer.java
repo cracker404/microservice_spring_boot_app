@@ -34,16 +34,16 @@ public class MessageConsumer<T> implements MessageListener
 				object = map.get("Object");
 			}
 			String index = (String) map.get("index");
-			Integer id =  (Integer) map.get("id");
+			String id =  map.get("id").toString();
 			switch (operation) {
 			case "SAVE":
-				clientService.save(object, index, String.valueOf(id));
+				clientService.save(object, index, id);
 				break;
 			case "UPDATE":
-				clientService.update(object, index,  String.valueOf(id));
+				clientService.update(object, index, id);
 				break;
 			case "DELETE":
-				clientService.deleteById(index,  String.valueOf(id));
+				clientService.deleteById(index, id);
 				break;
 			default:
 				//Email email = (Email) jmsDto.getObject();
